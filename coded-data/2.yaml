@@ -1,0 +1,120 @@
+#
+# 2.yaml | Reddit
+#
+# This report documents 2 incidents (both causing elevated error rates for users):
+#
+# (1) Subreddit Crowd Control. A subreddit feature (crowd control) was turned up for a busy (from posting and commenting) subreddit (wallstreetbets) and overloaded internal systems and causing database contention. 
+#
+# (2) The Modmail Flood. A busy subreddit (wallstreetbets) went private increasing the load on the SSO and modmail features (from users wanting to contact moderators) over-saturating the underlying database and cascading to systems that shared that database.
+#
+# https://www.reddit.com/r/RedditEng/comments/o4y4dq/rwallstreetbets_incident_anthology_reddits_open/
+
+
+
+2:
+
+  #
+  # From "the aftermath" section
+  #
+
+  # [The feature flip load-shedding was nonstandard but important...] Through these incidents, we’ve realized more clearly the value of feature flagging and identified several areas to reinforce the methodology - asking about feature switches early on in the design process, making feature flags easier to code into systems and adding observability integrations to make identifying and auditing for feature flag flips easier in our production environments.
+  2-1:  
+    # TODO: Should there be a lesson prop here?
+    lesson: "Realized more clearly the value of feature flagging"
+    
+    event: Responders turned off lower-priority features to reduce load
+    Event: Load-shedding during response (feature based)
+    
+    action: Ask about feature switches early
+    Action: Reinforce (enhance?)
+    
+    target: Design process
+    Target: Process / Development methodology
+    
+    goal: Encourage feature flags and feature-based load-shedding 
+    Goal: Add mitigation option / Feature based load-shedding
+  
+    memos:
+    - Defense-In-Depth: (2-1, 2-2, 2-3) we’ve realized more clearly the value of [..] and identified several areas to reinforce the methodology
+    - Prioritization: "realized more clearly the value of ..." 
+    - This and below are from more-or-less SUCCESSFUL parts of the incident
+  
+  2-2:
+    event: Responders turned off lower-priority features to reduce load
+    Event: Load-shedding during response (feature based)
+    
+    action: Make feature flags easier to code into systems
+    Action: Reduce friction for feature flags
+    
+    target: Application development
+    Target: Process / Development methodology
+    
+    goal: More easily add feature flags to support feature-based load-shedding
+    Goal: Add mitigation option / Feature based load-shedding
+
+    memos:
+    - Defense-In-Depth: (2-1, 2-2, 2-3) we’ve realized more clearly the value of [..] and identified several areas to reinforce the methodology
+    - Prioritization: "realized more clearly the value of ..." 
+  
+  2-3:
+    event: Responders turned off lower-priority features to reduce load
+    Event: Load-shedding during response (feature based)
+
+    action: Add monitoring and auditing for feature flags
+    Action: Add / Monitoring / Monitoring and auditing (visibility for feature flag)
+
+    target: Applications or monitoring systems (observability integrations)
+    Target: Tech / Component / Monitoring and auditing systems
+
+    goal: Support feature flag observability
+    Goal: Add observability (of feature flags)
+
+    memos:
+    - Defense-In-Depth: (2-1, 2-2, 2-3) we’ve realized more clearly the value of [..] and identified several areas to reinforce the methodology
+    - Prioritization: "realized more clearly the value of ..." 
+  
+  # [Moderator actions triggered both incidents and communication was necessary for triage and mitigation] Correlating subreddit behaviors to site impact proved critical in debugging both of these incidents, and the Community team played an important role, providing insights into user behavior and communication channels to moderators. None of Community’s key contributions were kicked off by documented processes - they happened because of organic relationships and internal connections built between individual responders from engineering and Community teams. While we were grateful for the openness that allowed these relationships to thrive, we’ve also started working to deliberately ensure that they continue to develop as we scale.
+  2-4:
+    # TODO: Should there be a lesson prop here? This will affect our count.
+    lesson: Community's contributions do not have a documented process (organic)
+    
+    event: Diagnosing incidents involved communicating with users (moderators)
+    Event: Community communication (successful)
+    
+    action: Formalize user relationship development and communication (VAGUE)
+    Action: Investigate / Formalize process
+    
+    target: Community engagement processes
+    Target: Process / User engagement process
+    
+    goal: Maintain user communication channel as company grows (VAGUE)
+    Goal: User communication (supporting triage and mitigation)
+    
+    memos:
+    - Not clear what they will actually do here (vague)
+    - Interesting (unique maybe?) that moderator actions can trigger incidents
+    - This went well but was not following a "documented process"
+    - Continuing doing something
+    - Improving-Understanding: Formalization means investigation and deciding what to do
+
+  patterns:
+    # "we’ve realized more clearly the value of feature flagging and identified several areas to reinforce the methodology"
+    - 
+      Reprioritize: Realized more cleary the value of something and found ways to change methodology
+      Prioritization: Rhymes with this pattern.
+      PAs: 2-1, 2-2, 2-3
+
+    # Through these incidents, we’ve realized more clearly the value of feature flagging and identified several areas to reinforce the methodology
+    - Shared-Goal-Differing-Angles: First three are the same goal but for design, development and auditing
+      Defense-In-Depth: Rhymes with this pattern.
+      PAs: 2-1, 2-2, 2-3
+
+  memos:
+    # "One major pain point that we identified in reviewing the load-shedding parts of each response was that there wasn’t a standard for the overall process." 
+    Pain-Point: Treat as source of PAs
+
+    # While we can probably never imagine all the ways redditors push our systems, the responses that played out during r/WallStreetBets highlighted some focus areas for resilience in the face of inevitability. [COMPLEX SYSTEMS]
+    Uncertainty: Anticipating, Limits of anticipating all possibilities is a deep and far reaching idea
+    
+    
+    

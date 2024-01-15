@@ -1,0 +1,228 @@
+#
+# 7.yaml | Elastic Cloud
+#
+# During an upgrade of hosts in the coordination layer high traffic and a defect led to CPU softlocks and a ZooKeeper failure. A portion of the high traffic was due to reconnection attempts due to the instability caused by high latency. A second set of services (Kibana dashboards) that depend on the ZooKeeper ensemble also failed due to a defect that left unsuccessful connections open (and there were many because of failures to connect to the Zookeeper ensemble).
+#
+# TODO: Should probably normalize our use of service, layer and application in the following.
+#
+# https://www.elastic.co/blog/elastic-cloud-incident-report-feburary-4-2019
+
+7:
+
+  # The ZooKeeper ensemble came under high load (CPU, IO, memory), with large numbers of client connection failures and re-connects across the ensemble [...] Reduced the dataset size carried by our ZooKeeper ensembles by over 60%. By doing so, network and disk I/O requirements for ZooKeeper are greatly reduced during normal operation, as well as providing faster recovery times for ensemble members joining the quorum. (Completed)
+    
+  7-1:
+    event: Synchronizing data from unstable service cascaded and prolonged failure
+    Event: Failure cascaded between dependencies (via data sync)
+    
+    action: Reduce size of stored and replicated configuration data
+    Action: Reduce configuration data size
+    
+    # TODO: Decide if target is the cluster manager or the data that it carries
+    target: Cluster manager (data store and sync mechanisms)
+    Target: Tech / Component / Cluster manager
+    
+    goal: Reduce I/O requirements and recovery times
+    Goal: Reduce time to recover and resource utilization
+    
+    memos:
+    - Multiple (anticipated) benefits of one action (reduce data size)
+
+  # Once the ZooKeeper ensemble and observers were stable, the proxy fleet was scaled up and out to handle the increased traffic to ES clusters [...] Reduced the number of health-checks and intervals required to allow a proxy node, marked as healthy, to join our load balancing layer as eligible targets to route traffic. This action item aims to reduce the mean time to recovery. (Completed)
+
+  7-2:
+    event: UNKNOWN (It appears that heath checks slowed scaling of fleet)
+    Event: UNKNOWN (Delayed scaling (guess))
+    
+    action: Reduce checks and time needed when adding new nodes
+    Action: Reduce health checks and activation delays
+    
+    target: Load balancer (for proxy fleet)
+    Target: Tech / Component / Load balancer 
+    
+    goal: Reduce mean-time to recovery by increasing activation speed
+    Goal: Reduce time to recover
+    
+  # Further revamp the logic around our proxy health-checks to not account for ZooKeeper connectivity as part of the checklist. With this change, once a proxy is successfully initialized, and has received its configuration and cluster routes, it will no longer drift to an unhealthy state due to the state of the supporting ZooKeeper ensemble. This change aims to sacrifice a potential small consistency skew over general availability. (In progress)
+    
+  7-3:
+    event: UNKNOWN (though health checks connected to dependency)
+    Event: UNKNOWN (Failing health checks due to dependency (guess))
+    
+    action: Remove dependency connectivity from health check logic
+    Action: Remove dependency from health check
+    
+    target: Load balancer (for proxy fleet)
+    Target: Tech / Component / Load balancer
+    
+    goal: Maintain general availability by not removing healthy nodes
+    Goal: Maintain availability (when dependency is down)
+    
+    memos:
+    - Health checks were checking the health of a dependency (like buildkite)
+    - IDEA - some PAs are simply a decision to make a different set of trade-offs
+
+  # The ZooKeeper ensemble came under high load (CPU, IO, memory), with large numbers of client connection failures and re-connects across the ensemble [...] Canarying the ground up rewrite of our proxy layer in production regions, as one of the final steps to switch to our proxy v2 architecture. The v2 architecture decouples the proxy service from the ZooKeeper state. (In progress)
+
+  7-4:
+    event: Synchronizing data from unstable service cascaded and prolonged failure
+    Event: Failure cascading between dependencies (via data sync)
+    
+    action: Rollout "v2 architecture" in stages
+    Action: Deploy / New architecture
+    
+    target: Proxy service
+    Target: Tech / Component / Application (major subsystem)
+    
+    goal: Decouple services (avoiding cascades and vicious cycles)
+    Goal: Decouple services (isolating them)
+    
+    memos:
+      - Prioritization: Major change, but work predated incident ("switch to ...")
+        Reprioritize-Or-Double-Down-On: Proposal is to finalize deployment/testing of what was already planned
+
+  # Service metrics had reported the hosts as healthy [...] however, the metrics proved to be insufficient in conveying the state of individual hosts and of the coordination layer as a whole [leading to] unanticipated instability on and between hosts, which ultimately led to an overall failure of the coordination layer [...] Improve visibility around ZooKeeper by further investing in our internal logging strategy and introducing better metrics around the ZooKeeper processes, the JVM, and container/host systems. (In progress)
+
+  7-5:
+    event: Maintainer acted on incomplete health metrics triggering incident 
+    Event: Maintainer acted on incomplete information (trigger)
+
+    action: Add additional logging and metrics
+    Action: Add / Monitoring / Logging and metrics
+
+    target: Multiple system layers (application processes, JVM, container)
+    Target: Tech / Component / Multiple system layers
+
+    goal: Provide more accurate state information (visibility into health)
+    Goal: Improve visibility into health (and better decision making)
+    
+  # To enable inter-host traffic using TLS, an ancillary container is used for services like Kibana to communicate internally to its Elasticsearch cluster securely. Each allocator host is running that container to allow secure, auditable connections to other hosts within Elastic Cloud [...] Kibana instances were not able to connect to their target Elasticsearch clusters due the internal TLS proxying service being unable to forward requests to the proxy layer [...] Improve resiliency in Kibana routes discovery methods. (In progress)
+
+  7-6:
+    event: Dashboard service instances failed to connect to data clusters
+    Event: Failed to connect
+    
+    action: Improve route discovery methods (VAGUE)
+    Action: Improve methods (?)
+    
+    target: Dashboard service (route discovery)
+    Target: Tech / Component / Application (routing layer)
+    
+    goal: Reliable routing during incidents (increase resilience)
+    Goal: Improve resilience
+    
+  # A set of previously unknown bugs in Kibana was resulting in [...] HTTP request amplification back to the load balancing layer, driving extra traffic to the proxy layer and Elasticsearch deployments [...] Other issues with Kibana that were determined to lead to request amplification are also being investigated [...] Identifying and solving issues with Kibana that lead to internal HTTP request amplifications during availability events. (In progress)
+
+  7-7:
+    event: Defect amplified requests back to distressed load balancing layer
+    Event: Incident exacerbated (through excessive load)
+
+    action: Identify and fix issues with HTTP request amplification
+    Action: Investigate / Identify and fix defects
+
+    target: Dashboard service 
+    Target: Tech / Component / Application 
+
+    goal: Prevent amplification of requests "during availability events"
+    Goal: Prevent increasing load (on already distressed system)
+    
+    memos:
+    - Plan to fix ("Identifying and solving")
+    - Question - how frequent are source code changes in PAs?
+    - Improving-Understanding: Investigation required
+
+  # A set of previously unknown bugs in Kibana was resulting in connection leaks [...] Identifying and solving issues with Kibana that lead to connection leaking. (In progress)
+
+  7-8:
+    event: During incident connections were leaked (extending availability issue)
+    Event: Connection leak (extending incident)
+    
+    action: Identify and fix connection leak bugs (investigate)
+    Action: Investigate / Identify and fix defects
+    
+    target: Dashboard service
+    Target: Tech / Component / Application 
+    
+    goal: Prevent connection leak
+    Goal: Prevent resource exhaustion (leak)
+      
+    memos:
+    - Plan to fix ("Identifying and solving")
+    - Improving-Understanding: previously unknown bugs, action is to investigate
+    
+  # A stable quorum was established by reducing client load and reducing operator debugging actions on the impacted ZooKeeper hosts [...] Identified and mitigated issues with internal monitoring agents not employing proper backoff strategies with Jitter. (Completed)
+
+  7-9:
+    event: Internal monitoring and debugging increased load on distressed host
+    Event: Monitoring exacerbated incident (through excessive load)
+    
+    action: Add backoff (with jitter) to retry strategy
+    Action: Add backoff strategy
+    
+    target: Monitoring agent
+    Target: Tech / Component / Monitoring system (agent)
+    
+    goal: Reduce load on distressed services (during debugging)
+    Goal: Reduce load (on distressed hots)
+    
+    memos:
+    - Responder tool was exacerbating the incident
+
+  # [Maintenance activities triggered the event and the event lasted into peak times] Formalized our maintenance matrix to reduce exposure of critical services within a region. We will be operating within specific timeframes for each region to limit the exposure of a failure to non-critical times. (Completed)
+
+  7-10:    
+    event: Maintenance procedure triggered incident lasting into peak hours
+    Event: Maintenance procedure triggered incident
+    
+    action: Add regional maintenance change windows
+    Action: Add / Maintenance / Change windows
+    
+    target: Maintenance procedures (maintenance matrix)
+    Target: Process / Maintenance procedures (SOP)
+    
+    goal: Reduce likelihood of incident during peak
+    Goal: Minimize customer impact of downtime
+    
+    memos:
+      - Similar: One notion of "similar" is when and for how long, maybe?
+    
+  # Provide our team with an improved decision criteria matrix in runbooks that involves regular maintenance operations with the coordination layer. (In progress)  
+
+  7-11:
+    event: Maintenance procedure triggered incident
+    Event: Maintenance procedure triggered incident
+    
+    action: Improve runbooks and "decision criteria matrix"
+    Action: Improve decision criteria matrix
+    
+    target: Maintenance procedures (human decision making)
+    Target: Process / Maintenance procedures (SOP) / Runbook
+    
+    goal: Reduce likelihood of maintainer triggered incidents 
+    Goal: Improve decision making
+    
+  # Established a feedback loop with our support leadership team for communications that go out through support or the status page. This will make sure we are answering the right questions and providing relevant updates. (Completed)
+
+  7-12:
+    event: UNKNOWN
+    Event: UNKNOWN
+    
+    action: Add procedure involving support leadership feedback
+    Action: Add feedback loop
+    
+    target: Support and status page customer communication procedures
+    Target: Process / Incident response / Customer communication / Support and Status page procedures
+    
+    goal: Better inform customers during incident (relevant information)
+    Goal: Effective customer communication
+    
+    memos:
+    - mitigation for future by changing how incidents are communicated to customers (more of changing how incident is managed than impacting speed of recovery)
+
+  patterns:
+    - Always-Present-Failure: Focus not on avoiding root cause (failures will always be with us) but ...
+
+    - Key-PAS: Some completed, some not
+  
+  memos:
+    - Unknown-PAS: Event UNKNOWN PAs because they have reflected on the relationship btw layers

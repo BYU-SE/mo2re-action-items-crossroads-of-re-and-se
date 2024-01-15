@@ -1,0 +1,10 @@
+#
+# 23.yaml | Rogers
+#
+# "The root cause of the intermittent wireless service issue impacting our customers was a recent Ericsson software update. Our team at Rogers worked tirelessly with Ericsson to restore wireless voice calls, SMS, and data services and bring all customers back online as quickly as possible."
+# 
+# https://about.rogers.com/news-ideas/a-message-from-jorge-fernandes-chief-technology-officer-at-rogers/
+
+# exclude: not an incident report (just a message from CTO)
+
+# So far I can't find a IR about this outage

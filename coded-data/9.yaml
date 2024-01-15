@@ -1,0 +1,402 @@
+#
+# 9.yaml | Roblox
+#
+# The Consul system became unhealthy causing a complete system outage because "when a Roblox service wants to talk to another service, it relies on Consul to have up-to-date knowledge of the location of the service it wants to talk to". "Consul was a single point of failure, and Consul was not healthy."
+
+# Incident report
+# https://blog.roblox.com/2022/01/roblox-return-to-service-10-28-10-31-2021/
+
+# The URL from VOID
+# https://blog.roblox.com/2021/10/update-recent-service-outage/
+
+9:
+
+  #
+  # From "Further Analysis and Changes Resulting from the Outage" section
+  #
+
+  # Enabling a relatively new streaming feature on Consul under unusually high read and write load led to excessive contention and poor performance [...] They had not observed this specific behavior before [despite testing] due to it manifesting from a combination of both a large number of streams and a high churn rate [...] The HashiCorp engineering team is creating new laboratory benchmarks to reproduce the specific contention issue and performing additional scale tests. 
+
+  9-1:
+    event: Enabling feature led to contention and poor performance under load
+    Event: Failure under high load
+    
+    action: Add "laboratory benchmarks to reproduce" and other testing at scale 
+    Action: Add / Testing / Scenarios
+    
+    target: Laboratory test suite
+    Target: Tech / Component / Test suite
+    
+    goal: Reproduce specific contention issue
+    Goal: Reproduce issue
+    
+    memos:
+    - High load here is a combination of two dimensions (easy to miss in testing)
+    - Third-party task
+
+  9-2:
+    event: Enabling feature led to contention and poor performance under load
+    Event: Failure under high load
+    
+    action: Perform additional tests "at our scale with our workload"
+    Action: Perform testing (at scale)
+    
+    target: Testing activities
+    Target: Process / Testing activities and practices
+    
+    goal: Reproduce issue (to support fixing)
+    Goal: Ensure issue is resolved
+
+  # Enabling a relatively new streaming feature on Consul under unusually high read and write load led to excessive contention and poor performance [...] HashiCorp is also working to improve the design of the streaming system to avoid contention under extreme load and ensure stable performance in such conditions.
+
+  9-3:    
+    event: Enabling feature led to contention and poor performance under load
+    Event: Failure under high load
+    
+    action: Improve subsystem design (for performance at scale)
+    Action: Improve scalability of design
+    
+    target: Streaming subsystem ("streaming feature on Consul")
+    Target: Tech / Component / Streaming subsystem
+    
+    goal: Stable performance and avoid contention under high load
+    Goal: Improve performance (stable at scale)
+    
+    memos:
+    - High load here is a combination of two dimensions (easy to miss in design)
+    - Third-party task
+    - Defense-In-Depth: (9-3, 9-4) Improve design to promote stable performance
+
+  # [Due to BoltDB's handling of a never shrinking free list leading to] two-second Raft data writes and cluster consistency issues [...] HashiCorp and Roblox have developed and deployed a process using existing BoltDB tooling to “compact” the database, which resolved the performance issues.
+
+  9-4:  
+    event: High database write times under workload then cluster inconsistencies
+    Event: High database latency
+
+    action: Add new maintenance process (reducing storage space needed)
+    Action: Add / Maintenance / New process
+
+    target: Storage subsystem ("Consul's BoltDB")
+    Target: Tech / Component / Storage subsystem
+
+    goal: Avoid long data writes ("pathological performance issue")
+    Goal: Improve performance (stable at scale)
+    
+    memos:
+      - First-Fast-Then-Right: (Fast) Good example of the first part of the "fast then better pattern"
+        Consequences: Poor design that usually is fine but in this particular scenario...
+      - Third-Party: Joint third-party and organization's task
+      - Defense-In-Depth: (9-3, 9-4) Add compaction maintenance process to promote stable performance
+    
+  #
+  # From "Recent Improvements and Future Steps" section
+  #
+
+  # Critical monitoring systems that would have provided better visibility into the cause of the outage relied on affected systems, such as Consul. This combination severely hampered the triage process [...] There was a circular dependency between our telemetry systems and Consul, which meant that when Consul was unhealthy, we lacked the telemetry data that would have made it easier for us to figure out what was wrong. We have removed this circular dependency. Our telemetry systems no longer depend on the systems that they are configured to monitor.
+
+  9-5:
+    event: Monitoring system failed when the monitored cluster failed (circular)
+    Event: Monitoring failed along with monitored system 
+    
+    action: Decouple two systems (remove circular dependency)
+    Action: Remove circular dependency (decouple)
+    
+    target: Telemetry systems and monitored cluster ("telemetry for Consul")
+    Target: Tech / Component / Monitoring systems and monitored systems
+    
+    goal: Improve visibility into the cause of outage
+    Goal: Visibility during incident
+    
+    memo:
+    - Category "Monitoring and/or monitored systems" could simplify some coding
+    
+  # Challenges in diagnosing these two primarily unrelated issues buried deep in the Consul implementation were largely responsible for the extended downtime [...] We have extended our telemetry systems to provide better visibility into Consul and BoltDB performance. We now receive highly targeted alerts if there are any signs that the system is approaching the state that caused this outage. 
+
+  9-6:    
+    event: Diagnosis and detection was hampered by telemetry system failure
+    Event: Failure without warning (monitoring failed)
+    
+    action: Add telemetry and alarming on error states ("extend system") into infrastructure systems
+    Action: Add / Monitoring / Telemetry and alarming (visibility into Infrastructure systems)
+    
+    target: Telemetry and alarming system ("for Consul and BoltDB")
+    Target: Tech / Component / Monitoring systems
+    
+    goal: Timely warning of approaching failure and better performance visibility
+    Goal: Earlier notification and performance visibility
+    
+    memos:
+    - I wonder if this is actually two actions?
+
+  # Challenges in diagnosing these two primarily unrelated issues buried deep in the Consul implementation were largely responsible for the extended downtime [...] We have also extended our telemetry systems to provide more visibility into the traffic patterns between Roblox services and Consul. This additional visibility into the behavior and performance of our system at multiple levels has already helped us during system upgrades and debugging sessions.
+
+  9-7:    
+    event: Diagnosis and detection was hampered by telemetry system failure
+    Event: Slow triage (monitoring failed)
+    
+    action: Add between system traffic patterns telemetry ("extend system")
+    Action: Add / Monitoring / Telemetry (visibility into into traffic patterns between systems)
+    
+    target: Telemetry systems (and applications?)
+    Target: Tech / Component / Monitoring and alarming systems
+    
+    goal: Visibility into behavior and performance (debugging)
+    Goal: Visibility into behavior and performance
+
+  # A single Consul cluster supporting multiple workloads exacerbated the impact of these issues [...] Running all Roblox backend services on one Consul cluster left us exposed to an outage of this nature. We have already built out the servers and networking for an additional, geographically distinct data center that will host our backend services. We have efforts underway to move to multiple availability zones within these data centers; we have made major modifications to our engineering roadmap and our staffing plans in order to accelerate these efforts.
+
+  9-8:
+    event: A cluster (supporting multiple work loads) failure exacerbated impact
+    Event: Single point of failure led to wide impact
+    
+    action: "Efforts underway to move to multiple availability zones"
+    Action: Move to multiple AZs (EXISTING)
+    
+    target: Data center and availability zone architecture
+    Target: Infrastructure / Data center architecture (deployment architecture)
+    
+    goal: Move to multiple availability zones to reduce scope of impact
+    Goal: Reduce scope of impact
+    
+    memos:
+      # We have already built out the servers and networking for an additional, geographically distinct data center that will host our backend services.
+      - Prioritization: Major effort, but action is really to get it done more quickly
+
+      # We have efforts underway...
+      - Defense-In-Depth: (9-8, 9-9, 9-10) Multiple efforts underway to move to multiple AZs
+
+  9-9:
+    event: A cluster (supporting multiple work loads) failure exacerbated impact
+    Event: Single point of failure led to wide impact
+    
+    action: Modify engineering roadmap to accelerate move to multiple AZs
+    Action: Change priorities
+    
+    target: Engineering roadmap
+    Target: Goals / Engineering roadmap
+    
+    goal: Complete existing effort more quickly (add AZs)
+    Goal: Accelerate project
+
+    memos:
+      # we have made major modifications to our engineering roadmap [..] in order to accelerate these efforts.
+      - Prioritization: Major effort, but action is really to get it done more quickly
+
+      # We have efforts underway...
+      - Defense-In-Depth: (9-8, 9-9, 9-10) Multiple efforts underway to move to multiple AZs
+
+  9-10:    
+    event: A cluster (supporting multiple work loads) failure exacerbated impact
+    Event: Single point of failure led to wide impact
+    
+    action: Modify staffing plans to accelerate move to multiple AZs
+    Action: Hire developers
+    
+    target: Staffing plans
+    Target: People / Organizational structure (staffing plans)
+    
+    goal: Complete existing effort more quickly (add AZs)
+    Goal: Accelerate project
+
+    memos:
+      # we have made major modifications to [..] our staffing plans in order to accelerate these efforts.
+      - Prioritization: Major effort, but action is really to get it done more quickly
+
+      # We have efforts underway...
+      - Defense-In-Depth: (9-8, 9-9, 9-10) Multiple efforts underway to move to multiple AZs
+    
+  # Enabling a relatively new streaming feature on Consul under unusually high read and write load led to excessive contention and poor performance [...] Roblox is still growing quickly, so even with multiple Consul clusters, we want to reduce the load we place on Consul. We have reviewed how our services use Consul’s KV store and health checks, and have split some critical services into their own dedicated clusters, reducing load on our central Consul cluster to a safer level.
+
+  9-11:
+    event: Enabling feature led to contention and poor performance under load
+    Event: Infrastructure failure under high load
+    
+    action: Partition service and load (split into dedicated clusters)
+    Action: Partition service (split load)
+    
+    target: Storage subsystem and clients ("Consul’s KV store")
+    Target: Tech / Architecture (deployment) / Storage subsystem and clients
+    
+    goal: Reduce current load and provide headroom for future growth
+    Goal: Reduce load (adding headroom for safety)
+    
+    memos:
+      - Uncertainty: Tipping-Point, System tipped over so goal is to bring load to "safer level" (headroom)
+      - Uncertainty: Also service is "still growing quickly" so reduce load today (headroom)
+      - Uncertainty: Rhymes with Acceptable-Risk concept.
+      - Consequences: Reducing load on KV storage subsystem reduces load on Consul
+      - Defense-In-Depth: (9-11, 9-12, 9-13) Reducing load on Consul to improve Consul performance
+
+  # Enabling a relatively new streaming feature on Consul under unusually high read and write load led to excessive contention and poor performance [...] Some core Roblox services are using Consul’s KV store directly as a convenient place to store data, even though we have other storage systems that are likely more appropriate. We are in the process of migrating this data to a more appropriate storage system. Once complete, this will also reduce load on Consul.
+
+  9-12:
+    event: Enabling feature led to contention and poor performance under load
+    Event: Infrastructure failure under high load
+    
+    action: Move to a more appropriate storage system
+    Action: Replace / Migrate to appropriate data storage system
+    
+    target: Core services
+    Target: Tech / Component / Services
+    
+    goal: Reduce current load on Consul (to support future growth)
+    Goal: Reduce load on infrastructure (adding headroom for safety)
+    
+    memos:
+      - Consequences: Again, reducing load on KV storage subsystem reduces load on Consul
+      - Defense-In-Depth: (9-11, 9-12, 9-13) Reducing load on Consul to improve Consul performance
+
+    
+  # Enabling a relatively new streaming feature on Consul under unusually high read and write load led to excessive contention and poor performance [...] We discovered a large amount of obsolete KV data. Deleting this obsolete data improved Consul performance.
+
+  9-13:
+    event: Enabling feature led to contention and poor performance under load
+    Event: Infrastructure failure under high load
+    
+    action: Delete obsolete data
+    Action: Reduce amount of stored data
+    
+    target: Storage subsystem data ("Consul’s KV store")
+    Target: Tech / Component / Storage subsystem (stored data)
+    
+    goal: Improve performance (reduce latency?)
+    Goal: Improve performance (reduce latency?)
+    
+    memos:
+      - Consequences: Improving KV storage performance improves Consul performance
+      - Defense-In-Depth: (9-11, 9-12, 9-13) Deleting data to improve Consul performance
+      - Uncertainty: (9-11, 9-12, 9-13) Series of PAs are intended *together* to buy time or "headroom" (pattern!!) 
+      - Uncertainty: Rhymes with Acceptable-Risk concept.
+    
+  # [Due to its handling of a never shrinking free list leading to] two-second Raft data writes and cluster consistency issues [...] We are working closely with HashiCorp to deploy a new version of Consul that replaces BoltDB with a successor called bbolt that does not have the same issue with unbounded freelist growth. We intentionally postponed this effort into the new year to avoid a complex upgrade during our peak end-of-year traffic. The upgrade is being tested now and will complete in Q1.
+
+  9-14:
+    event: High load conditions triggered "pathological performance" in database
+    Event: High load triggered performance defect
+    
+    action: Upgrade to new version of system (replacing database subsystem)
+    Action: Replace / Upgrade system version (replacing subsystem)
+    
+    target: System version and database subsystem ("Consul's BoltDB")
+    Target: Tech / Component / System and storage subsystem
+    
+    goal: Fix (high load) performance issue
+    Goal: Improve performance (under high load)
+    
+    memos:
+      - Third-Party: This PA required working with third-party maintainer
+      - Work-Needed-First: A complex upgrade, in testing now
+      - First-Fast-Then-Right: (Right) This is the "better" pair to the above "fast" PA (pattern!!)
+
+  # The return to service effort was slowed by a number of factors, including the deployment and warming of caches needed by Roblox services. We are developing new tools and processes to make this process more automated and less error-prone.  In particular, we have redesigned our cache deployment mechanisms to ensure we can quickly bring up our cache system from a standing start. Implementation of this is underway. [I would love to know more ...]
+
+  9-15:
+    event: Slow (and manual) cache deployment and warming delayed recovery
+    Event: Slow recover (cold caches)
+    
+    action: Automate cache deployment mechanism (redesign)
+    Action: Redesign and automate deployment mechanism
+    
+    target: Cache system and deployment tooling
+    Target: Tech / Architecture (deployment) / Cache system tooling + Infrastructure?
+    
+    goal: Quick cache deployment
+    Goal: Safe and quick deployments
+    
+  # We were thoughtful and careful in our approach to bringing Roblox up from an extended fully-down state, which also took notable time [...] We worked with HashiCorp to identify several Nomad enhancements that will make it easier for us to turn up large jobs after a long period of unavailability. These enhancements will be deployed as part of our next Nomad upgrade, scheduled for later this month.
+
+  9-16:
+    event: Brining up whole system from full-down state took "notable time"
+    Event: Slow recovery from full-down state (slow restart)
+    
+    action: Identify and deploy enhancements (vague)
+    Action: Investigate / Identify and deploy enhancements
+    
+    target: Job scheduler ("Nomad")
+    Target: Tech / Component / Job scheduling system
+    
+    goal: Easily restart jobs (after period of unavailability)
+    Goal: Graceful recovery (restart of jobs)
+    
+    memos:
+    - Third-Party: This PA required working with third-party maintainer
+    - Improving-Understanding: Investigation required
+
+  # We were thoughtful and careful in our approach to bringing Roblox up from an extended fully-down state, which also took notable time [...] We have developed and deployed mechanisms for faster machine configuration changes.
+
+  9-17:
+    event: UNKNOWN (maybe, bringing up system from full-down state was slow)
+    Event: UNKNOWN (likely, slow recovery from full-down state; slow restart)
+    
+    action: Develop and deploy mechanisms
+    Action: Develop and deploy mechanisms
+    
+    target: Machine configuration system
+    Target: Tech / Component / Configuration system
+    
+    goal: Faster machine configuration changes
+    Goal: Reduce time to make configuration changes
+
+  # The root cause was due to two issues. Enabling a relatively new streaming feature on Consul under unusually high read and write load led to excessive contention and poor performance [...] We originally deployed streaming to lower the CPU usage and network bandwidth of the Consul cluster. Once a new implementation has been tested at our scale with our workload, we expect to carefully reintroduce it to our systems.
+
+  9-18:
+    event: Enabling feature led to contention and poor performance under load
+    Event: Failure under high load (and rollback)
+    
+    action: Carefully reintroduce feature to systems
+    Action: Deploy / Roll-forward
+    
+    target: System and streaming subsystem ("Consul" and its streaming subsystem)
+    Target: Tech / Component / System and subsystem version
+    
+    goal: Reintroduce feature ("carefully") consuming fewer resources
+    Goal: Reintroduce (fixed version)
+    
+    memos:
+    - Uncertainty: Risk, Yeah "carefully reintroduce" ha! I bet they will be careful after 61hr outage
+    - Testing part of this are 9.1 and 9.2 above ("fix, test and deploy" pattern)
+
+    
+  memos:
+    - Simultaneous-RCAs: Several RCAs were done simultaneously (they thought it was different things at different times and ran different mitigating actions)
+    
+    # Engineers looked at flame graphs like the one below to get a better understanding of the inner workings of BoltDB.
+    
+    - Improving-Understanding: Incident is an opportunity to get "better understanding of inner works"
+    
+    # In the aftermath of an outage like this, it’s natural to ask if Roblox would consider moving to public cloud and letting a third party manage our foundational compute, storage, and networking services.
+
+    - PAs-Rejected: Interesting idea to mention PAs they will NOT do
+    
+    # Hardware issues are not  unusual at Roblox’s scale, and Consul can survive hardware failure. However, if hardware is merely slow rather than failing, it can impact overall Consul performance. 
+    
+    - Preferring-Outage: In some cases slow performance is WORSE than an outage
+
+    # "We used this time [since the outage] to learn as much as we could from the outage, to adjust engineering priorities based on what we learned, and to aggressively harden our systems." 
+    
+    - Prioritization: Sometimes PAs really just represent different prioritization of work
+    
+    # "The full list of completed and in-flight reliability improvements is too long and too detailed for this write-up, but here are the key items ..."
+    
+    - Validity-of-IRs: Important validity consideration for our research (incomplete)
+    
+    # We intentionally postponed this effort into the new year to avoid a complex upgrade during our peak end-of-year traffic. 
+    
+    - Postponing-PAs: Postponed PA to avoid potential failure scenarios
+      Prioritization: Rhymes with this pattern.
+    
+    # It has been 2.5 months since the outage. What have we been up to? We used this time to learn as much as we could from the outage, to adjust engineering priorities based on what we learned, and to aggressively harden our systems.
+    
+    - Delayed-Postmortem: Report written many months after incident, and some (rather large) PAs are complete
+    
+  patterns:
+    
+    - Single-point-of-failure-and-action: Single point of failure and single point of action (to explore)
+
+    - First-Fast-Then-Right: (Fast) Developed and deployed a process to compact the database resolving performance issues and then (Right) working to develop and deploy a version of the software with a database that does not have the same issues.
+      Fast: 9-4
+      Right: 9-14
+
+
+
+

@@ -1,0 +1,130 @@
+#
+# 18.yaml | Slack
+#
+# The first Monday when people return to work after the holidays caches are cold and traffic is high. High load (and slow network TGW auto-scaling by AWS) lead to high packet loss, some follow on failures (eg, the provisioning service) and finally an outage.
+# 
+# https://slack.engineering/slacks-outage-on-january-4th-2021/
+
+18:
+
+  #
+  # [Context for all of the actions ...] Traffic is lower over the holidays, as everyone disconnects from work (good job on the work-life balance, Slack users!). On the first Monday back, client caches are cold and clients pull down more data than usual on their first connection to Slack. We go from our quietest time of the whole year to one of our biggest days quite literally overnight.
+  #
+
+  # The TGWs are managed by AWS and are intended to scale transparently to us [however, Slack's traffic pattern is unusual and] our TGWs did not scale fast enough. During the incident, AWS engineers were alerted to our packet drops by their own internal monitoring, and increased our TGW capacity manually. AWS assures us that they are reviewing the AWS Transit Gateway (TGW) scaling algorithms for large packet-per-second increases as part of their post-incident process. 
+
+  18-1:
+    event: Providers network gateways became overloaded under seasonal load spike 
+    Event: Overload 
+    
+    action: Third party will review scaling algorithm for specific case 
+    Action: Investigate / Review scaling algorithm
+    
+    target: Cloud providers network gateways (AWS TGWs)
+    Target: Tech / Infrastructure / Cloud providers network infrastructure
+    
+    goal: Prevent overload during rapid packet increases
+    Goal: Prevent overload from rapid traffic spikes
+    
+    memos:
+    - Third-party
+    
+    - Defense-In-Depth: (18-1, 18-2) Avoid overload during spikes
+    - Improving-Understanding: Investigation required into the scaling algorithm
+
+
+  #  We use AWS Transit Gateways (TGWs) as hubs to link our VPCs [...] one of our Transit Gateways became overloaded [and] our TGWs did not scale fast enough [until AWS engineers were alerted] We’ve also set ourselves a reminder (a Slack reminder, of course) to request a preemptive upscaling of our TGWs at the end of the next holiday season.
+
+  18-2:
+    event: Providers network gateways became overloaded under seasonal load spike 
+    Event: Overload 
+    
+    action: Plan to preemptively request scaling up (seasonally)
+    Action: Plan / Preemptive scaling (before predicated high-load events)
+    
+    target: Cloud providers network gateways (AWS TGWs)
+    Target: Tech / Infrastructure / Cloud providers network infrastructure
+    
+    goal: Prevent overload during seasonal high-load events (predictable spike)
+    Goal: Prevent overload from predictable traffic spikes
+    
+    memos:
+    - Auto-scaling vs preemptive scaling (for predictable traffic spike)
+    - Defense-In-Depth: (18-1, 18-2) Avoid overload during spikes
+    
+  #  [Early in incident] our dashboarding and alerting service became unavailable [...] Our metrics backends were still up, meaning that we were able to query them directly [...] and investigation was now hampered by the lack of our usual dashboards and alerts [...] We make efforts to keep our monitoring tools as independent of Slack’s infrastructure as possible, so that they don’t fail us when we need them the most. In this case, our dashboard and alerting services failed because they were running in a different VPC from their backend databases, creating a dependency on the TGWs. Running the dashboard service instances in the same VPC as their database will remove this dependency.
+    
+  18-3:
+    event: Network gateway failure disconnected dashboards from metrics database
+    Event: Network infrastructure overload disconnected service from database
+    
+    action: Move dashboard service instances to same VPC as metrics database 
+    Action: Locate service and database in same VPC
+    
+    target: Dashboard service and its deployment architecture
+    Target: Tech / Architecture (deployment) / Service and database (dashboard)
+    
+    goal: Increase reliability by removing dependency (network gateway)
+    Goal: Improve reliability
+    
+    memos:
+    - Concept--Relationships btw metrics systems (etc) and its consequences
+    
+  # The spike of load from the simultaneous provisioning of so many instances under suboptimal network conditions meant that provision-service hit two separate resource bottlenecks (the most significant one was the Linux open files limit, but we also exceeded an AWS quota limit) [...] Finally, we’ll make sure to regularly load test provision-service to make sure there aren’t any more scaling problems in store (we’ve load tested it in the past but this event exceeded our previous scale-ups).
+
+  18-4:
+    event: Seasonal load (exceeding tested level) overloaded provisioning service
+    Event: Failure under high load
+
+    # TODO: Add more detail
+    action: Add regular load testing
+    Action: Add / Testing / Regular load testing
+
+    target: Load test practices (for provisioning service)
+    Target: Process / Testing activities, practices and tools / Load testing
+
+    goal: Identify any additional scaling problems ("in extreme circumstances")
+    Goal: Identify scaling issues at extremes 
+    
+    memos:
+    - Existing load testing is not on going or routine, sounds like
+    
+    # we’ve load tested it in the past but this event exceeded our previous scale-ups [...] even in extreme circumstances such as this significant network disruption.
+    
+    - Load experienced was higher than in test AND involved network disruption
+
+  # The spike of load from the simultaneous provisioning of so many instances under suboptimal network conditions meant that provision-service hit two separate resource bottlenecks (the most significant one was the Linux open files limit, but we also exceeded an AWS quota limit) [...] We will also reevaluate our health-checking and autoscaling configurations to prevent inadvertently overloading provision-service again, even in extreme circumstances such as this significant network disruption.
+
+  18-5:
+    event: Seasonal load (exceeding tested level) overloaded provisioning service
+    Event: Failure under high load (more load than used to)
+
+    action: Reevaluate health-checking and autoscaling configurations
+    Action: Investigate / Reevaluate configurations (health checks and autoscaling)
+
+    # TODO: Add more detail?
+    target: Health checks and autoscaling configuration
+    Target: Tech / Component / Health checks and autoscaling configuration
+    
+    goal: Prevent overloading service in extreme circumstances
+    Goal: Prevent overload
+
+    memos:
+      - Improving-Understanding: Investigation required
+    
+    
+  memos:
+    
+    # At this point Slack itself was still up - at 6.57am PST 99% of Slack messages were being sent successfully (but our success rate for message sending is usually over 99.999%, so this was not normal) [later] Slack became unavailable. 
+    
+    Early-Responding: Incident response beginning before the outage (failure during response)
+    
+    # AWS assures us that they are reviewing the TGW scaling algorithms for large packet-per-second increases as part of their post-incident process. 
+    
+    Third-Party: Separate third party post-incident analysis conducted as well (not linked) 
+    
+    # Every incident is an opportunity to learn, and an unplanned investment in future reliability.
+    
+    Learning: How this happens & the meaning of "reliability" is a core research question
+    
+    

@@ -1,0 +1,120 @@
+#
+# 8.yaml | Zalando Fashion Store
+# 
+# Timeouts from a downstream service (fronted by an aggregation layer) lead to client retries, increasing RPS for the aggregation layer and the Kubernetes cluster DNS infrastructure. The spike in DNS queries led to OOM errors on the "CoreDNS pods" which killed them. They could not recover ("kept running out of memory and getting killed") leading to a total DNS outage for the entire cluster.
+# https://github.com/zalando-incubator/kubernetes-on-aws/blob/dev/docs/postmortems/jan-2019-dns-outage.md
+
+8:
+
+  # [Event for the following] The incident started when calls to one of the many downstream services from the aggregation layer, began to time-out [...] which resulted in clients retrying, creating a spike in requests to the aggregation layer [which] then resulted in an equivalent spike in DNS queries on the Cluster DNS infrastructure (CoreDNS) [which led] to the pods running out of memory and getting OOM Killed at the same time [which led] to a total DNS outage for the entire cluster.
+
+  # From this incident we learned that our Kubernetes DNS infrastructure is far from resilient enough. It should not be possible for a single application to "DoS" our DNS infrastructure in a way that impacts everything running in the cluster. The blast radius of an application increasing the number of DNS queries should at least be isolated to a single node in the cluster, ideally to single pods.
+  
+  8-1:
+    event: Application errors, timeouts and retries crashed DNS infrastructure
+    lesson: DNS infrastructure is not resilient and failure not isolated
+    Lesson: Missing resilience & fault isolation (under this scenario)
+
+    memos:
+      - Lesson is related to the "blast radius" or scope of the incident
+    
+  # While investigating how to improve the DNS infrastructure we got a better understanding of the many DNS related problems in Kubernetes also described in this kubernetes issue, like Linux kernel races in the conntrack handling and the "ndots 5 problem". We were already familiar with most of these issues, and had mitigations for some of them, but we didn’t fully understand how severely it all impacted our DNS infrastructure.
+    
+  8-2:
+    event: Application errors, timeouts and retries crashed DNS infrastructure
+    lesson: Better understanding of consequences of many known Kubernetes issues
+    Lesson: Improved understanding of behavior of known defects (severity and scope)
+    
+    memos:
+      - Repeat: "We were already familiar with most of these issues, and had mitigations"
+      - Improving-Understanding: Rhymes with this pattern.
+    
+  # Apart from the issues around the DNS infrastructure itself, we also learned that our monitoring is not robust enough. While we have some alerting which is running from outside our clusters, most alerting is run inside the cluster itself. In this case it meant our On-call engineer wasn’t automatically paged when the DNS infrastructure crashed and the time to recovery was therefore longer than it should have been.
+  
+  8-3:
+    event: Monitoring system went down along with clusters (so no alert fired)
+    lesson: Monitoring is not robust to cluster failure (runs in cluster it monitors)
+    Lesson: Missing resilience / Monitoring & alarming dependends on monitored system
+    
+    memos:
+      - Circular dependency between monitoring and monitored systems
+
+  # # [Non optimal DNS infrastructure across the system ...]
+  #
+  # (1) The aggregation layer service [...] doesn’t cache any DNS lookups [...]
+  # (2) The application [sends] 10 DNS queries for every single DNS lookup of an cluster-external name [ndots 5 problem in Kubernetes]
+  # (3) Short maximum lifetime for all connections [and so] a larger number of DNS requests due to constantly opening new connections to downstream dependencies.
+  # (4) CoreDNS pods were configured with a very small memory limit of 100Mi based on historical resource usage data
+  #
+  # Introduce a more resilient DNS infrastructure. We are working on a solution where we will run CoreDNS fronted by dnsmasq on every node. This setup outperforms any other setup we have considered and tested. We will share a longer write-up of this, once we have some more experience with the new setup.
+
+  8-4:
+    event: Application errors, timeouts and retries crashed DNS infrastructure
+    Event: Cascade overwhelmed infrastructure
+    
+    action: Add new subsystem for DNS caching ("dnsmasq")
+    Action: Add / Component / Caching subsystem
+    ll: 8-1, 8-2
+    
+    target: Application nodes (DNS infrastructure)
+    Target: Tech / Infrastructure / Networking infrastructure (on application nodes)
+    
+    goal: "More resilient DNS infrastructure"
+    Goal: Improve infrastructure resiliency
+    
+    memos:
+      
+      # Outperforms any other setup we have considered and tested
+        
+      - In some cases the PA is to do research, here that research is already done
+      - Maybe change is provisional (iterative architectural decision making)
+    
+  # As a side effect of the DNS outage our internal monitoring for the cluster was also completely down as it needs to talk to external services to trigger alerts and push metrics [...] Improve high level alerting from outside of clusters. We should know that there is something wrong with the cluster before, or at least at the same time as applications in the clusters start to be affected.
+
+  8-5:    
+    event: Monitoring system went down along with clusters (so no alert fired)
+    Event: Monitoring failed along with monitored system (missing alarms)
+    
+    action: UNKNOWN (maybe add external monitoring and alarming)
+    Action: UNKNOWN
+    ll: 8-3
+    
+    target: External monitoring and alarming infrastructure
+    Target: Tech / Component / Monitoring and alarming systems
+    
+    goal: "Improve high level alerting from outside of clusters"
+    Goal: Timely failure notification
+    
+    memos:
+    - Trade-offs between internal (detailed) and external monitoring (decoupled)
+    - Distinction between external vs internal monitoring support is important!
+    - Notification goal is "before or at least at the same time as ..."
+    
+  # The on-call engineer for the aggregation layer service had to call the Kubernetes responsible on-call engineer instead of the automatic paging we normally rely on [...] Improve incident response processes and tooling. It can happen that automatic paging fails for whatever reason. In this case it should be simple for any on-call engineers to escalate directly to other teams without going to a different tool. One idea we are pursuing is to simplify the escalation process via a chat bot.
+
+  8-6:
+    event: On-call manually escalated, delaying response (paging was unreliable)
+    Event: Delayed notification of on-call (unreliable escalation)
+    ll: 8-3
+    
+    action: Add tool to make escalating (notifying) simple for on-call
+    Action: Add / Component / Escalation tooling
+    
+    target: Escalation process and tooling (chat bot is one idea)
+    Target: Process / Incident response / Escalation tooling and process
+    
+    goal: Quick and easy escalation to responsible parties
+    Goal: Timely escalation
+
+    memo:
+      - At point of publication chat bot was "one idea" not a commitment
+      - Important difference btw "what" (improve escalation) and "how" (add bot)
+
+memos:
+
+  # While we consider the DNS infrastructure to be the biggest factor in this incident, there were a number of contributing factors which [led] to the impact: There was a sudden spike in requests to the aggregation layer service because calls to a single, not so important, downstream service were timing out and calls were being retried [...]
+
+  - Why not cover all contributing factors (trigger, limit, ...) with LLs and PAs?
+  - Analytic idea may be to look for connections between factors (F), LLs and PAs (LFI)
+
+  - They are not just considering a single root cause in their lessons and actions

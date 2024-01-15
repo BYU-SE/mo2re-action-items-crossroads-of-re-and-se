@@ -1,0 +1,145 @@
+#
+# 10.yaml | Honeycomb.io
+#
+# Partial API outage and repeated incident led to emergency maintenance for 2 minuntes. Datastore was slow and the caching layer would send a thundering herd of cache refreshes. The datastore reached tipping over points and led to OOMs.
+# 
+# https://www.honeycomb.io/blog/postmortem-rds-clogs-cache-refresh-crash-loops
+
+# [For all of the below actions, the key explanatory quote is:] The real risk factor was that our production RDS instance's CPU utilization had been idling around a baseline of 30-40% for some time [and also that when RDS slowed down the cache refresh attempts] was enough to tip us over [...] 
+
+10:
+
+  # Previously, when a cache entry expired, it was assumed to be gone from the cache, and any subsequent requests for it would return “not found”. The caller would then typically do a DB query and put the result back into the cache with the correct TTL. The fix is to change the cache behavior such that only a single goroutine at a time is refreshing the cache. This fixes the thundering herd of cache refreshes that happens after RDS falls behind.
+
+  10-1:
+    event: Thundering herd of cache refreshes occurred when datastore fell behind
+    Event: Thundering herd (cache refreshes)
+    
+    action: Only allow one cache refresh at a time (per key?)
+    Action: Limit concurrency
+    
+    target: Caching layer
+    Target: Tech / Component / Caching layer
+    
+    goal: Prevent thundering herd
+    Goal: Prevent thundering herd
+    
+    memos:
+      - Uncertainty: Addresses an immediate culprit that caused tipping over, but they also scheduled items to reduce baseline utilization to prevent the same thing 
+    
+  # For one thing, we had simply reached a usage volume where we benefited more from throwing money than engineer-hours at this particular database problem. We scheduled a brief emergency maintenance window about 12 hours after the 10/11 outage to upgrade our production RDS instance from m4.xlarge to m5.2xlarge, which briefly interrupted all services for a few minutes but reduced our idling utilization percentage from 30-40% to 6%. It also had the bonus effect of reducing and dramatically stabilizing query times.
+  
+  10-2:
+    event: Database was overwhelmed with requests and reached tipping point
+    Event: Database failed under load (cascading ...)
+
+    action: Scale up hardware (database instance type)
+    Action: Scale up (hardware)
+
+    target: Database (RDS)
+    Target: Tech / Component / Database
+
+    goal: Reduce CPU utilization (avoid tip over)
+    Goal: Reduce resource utilization (provide headroom)
+    
+    memos:
+    - Had bonus effect of reducing and stabilizing query times
+    - Interesting that getting down to 6% utilization is considered GOOD
+    - Uncertainty: (10-2, 10-3, 10-4, 10-5) Headroom goal
+    - Uncertainty: (10-2, 10-3, 10-4, 10-5) Tipping point event
+    
+  # We used our internal Honeycomb instance to inspect the latency of our highest volume RDS queries, and identified cases where we could stand to reduce their frequency.
+
+  10-3:
+    event: Database was overwhelmed with requests and reached tipping point
+    Event: Database failed under load (cascading ...)
+    
+    action: Inspect common queries and reduce their frequency
+    Action: Reduce frequency of common queries (after investigation)
+    
+    target: Database queries
+    Target: Tech / Component / Database queries
+    
+    goal: Reduce load on database
+    Goal: Reduce load (provide headroom)
+    
+    memos:
+    - So they didn't optimize the queries, just call them less frequently?
+    - Defense-In-Depth: (10-3, 10-4, 10-5) Reducing load on db from queries
+    - Uncertainty: (10-2, 10-3, 10-4, 10-5) Headroom goal
+    - Uncertainty: (10-2, 10-3, 10-4, 10-5) Tipping point event
+    
+  # We considered slowing down or staggering the disk-usage-gathering cronjob that had been periodically causing our RDS utilization to spike 20%, so that it wouldn't hammer the database so much as soon as it started running.
+
+  10-4:
+    event: Database was overwhelmed with requests and reached tipping point
+    Event: Database failed under load (cascading ...)
+    
+    action: Consider changing frequency of expensive cron jobs 
+    Action: Investigate / Reducing frequency of expensive queries
+    
+    target: Cron jobs (running against database)
+    Target: Tech / Component / Cron jobs (running against database)
+    
+    goal: Reduce load on database
+    Goal: Reduce load (provide headroom)
+
+    memos:
+      - Defense-In-Depth: (10-3, 10-4, 10-5) Reducing load on db from cron jobs
+      - Improving-Understanding: Investigation required
+      - Uncertainty: (10-2, 10-3, 10-4, 10-5) Headroom goal
+      - Uncertainty: (10-2, 10-3, 10-4, 10-5) Tipping point event
+    
+  # We dug into that periodic cronjob more and noticed we were unnecessarily running it on all datasets, so we stopped running it on relatively stale datasets, yielding a ~25% reduction in that cronjob's DB writes.
+
+  10-5:
+    event: Database was overwhelmed with requests and reached tipping point
+    Event: Database failed under load (cascading ...)
+    
+    action: Reduce unnecessary queries on stable datasets
+    Action: Remove unnecessary queries
+    
+    target: Cron jobs
+    Target: Tech / Component / Cron jobs
+    
+    goal: Reduce load on database
+    Goal: Reduce load (provide headroom)
+
+    memos:
+      - Defense-In-Depth: (10-3, 10-4, 10-5) Reducing load on db from unnecessary sources (data is stable)
+      - Uncertainty: (10-2, 10-3, 10-4, 10-5) Headroom goal
+      - Uncertainty: (10-2, 10-3, 10-4, 10-5) Tipping point event
+    
+  # Observability is as much as factor of culture as code, and we also documented miscellaneous stumbling points and on-call processes that had caused confusion or burned time during the outage.
+
+  10-6:
+    event: UNKNOWN (presumably there was some delays with incident response)
+    Event: UNKNOWN (Difficult and time consuming response)
+    
+    action: Document problems and points of confusion during response
+    Action: Add / Documentation (based on errors made)
+    
+    target: Incident response documentation and procedures
+    Target: Process / Incident response / Documentation and procedures
+    
+    goal: Reduce time to resolve incidents (avoid confusion)
+    Goal: Reduce time to resolve incidents
+    
+
+  patterns:
+    # Our quick temporary fix to recover from the crash loop was to temporarily reduce the size of our autoscaling group, relieving the pressure of request retries just enough for RDS and our API servers to self recover. Then we looked for the actual cause.
+    - 
+      First-Fast-Then-Right: (Fast) Reduce size of autoscaling group to relieve pressure of retries to allow RDS and API servers to recover and then (Right) look for RCA.
+      Quick-Fix-Then-RCA: Quick and temporary fix, then looking for actual cause
+
+  memos:
+
+    # Although the cache fix addresses an immediate culprit, we knew we would **continue to be at risk** of a single DB-intensive incident tipping over our RDS instance **in the future** unless we reduced our baseline utilization.
+    - Uncertainty: Tipping-Point, Goal (for multiple PAs) is to move a way from the tipping point (pattern!!)
+    - Uncertainty: Risk, Address immediate culprit, continuing to be at risk for tipping over in the future
+    - Similar: Same event happening (tipping over RDS) in the future
+
+    # We always learn new lessons during an outage, and add new event context so that we can better understand the behavior of our systems in the future.
+    - Lessons-Learned: Outages lead to lessons learned, which help understand behavior of systems in the future
+    - Behavior: One value of an incident is better understanding of system behavior
+    - Improving-Understanding: One value of an incident is better understanding of system behavior

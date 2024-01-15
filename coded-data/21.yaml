@@ -1,0 +1,165 @@
+#
+# 21.yaml | BUNGiE (Destiny 2 game)
+#
+# A hotfix re-introduced a previously fixed defect (causing errors for some player accounts) because servers crashed and restarted WITHOUT picking up the fix. Responders rolled back the hotfix and rolled back the accounts to previous state. 
+# 
+# https://www.bungie.net/en/News/Article/48723
+
+21:
+  # [Many servers crashed during rollout of hotfix, were manually restarted and did NOT pick up the patch fixing a previous defect...] We have verification systems that detect these sorts of version misconfigurations, but the crashes and subsequent manual restarts caused the servers to also skip the verification process [...] We have added further safeguards to our process for “hot-patching” our servers to ensure that they cannot start with an unexpected version.
+
+  21-1:
+    event: Old defective code reintroduced unexpectedly after deployment, crash, and restart
+    Event: Wrong code version executed (reintroducing defect)
+    
+    action: Add additional safeguards (VAGUE)
+    Action: Add additional safeguards
+    
+    target: Hot-patching process and associated verification system
+    Target: Tech / Infrastructure / Deployment and verification mechanisms / Hot-patching + process?
+    
+    goal: Prevent restart with "unexpected version"
+    Goal: Ensure intended source code and configuration version used
+    
+    memos:
+    - These are ADDITIONAL safeguards because the previous ones failed
+    - Defense-In-Depth: (21-1) Multiple safeguards, though not specified
+    - Improving-Understanding: Unexpected event
+    
+  # A small percentage (less than 1 percent) of these servers would crash on start-up due to the volume of servers overwhelming one of the backing databases [...] We have fixed the issue that caused a small fraction of WorldServers to crash on startup. This fix will be deployed with Season 10. 
+    
+  21-2:
+    event: Servers crash on startup because they overwhelm a dependent database
+    Event: Crash on startup (overwhelmed dependency)
+
+    action: Fix issue
+    Action: Fix issue
+
+    target: UNKNOWN
+    Target: UNKNOWN
+
+    goal: Prevent server crashes on restart of fleet
+    Goal: Prevent crash on fleet startup
+    
+    memos:
+    # Our workaround for this was to simply manually restart the crashed servers each time we detected this issue, and this appeared to address the problem without any discernible side effects for players.  
+    
+    - A KNOWN issue that was being tolerated contributed to incident (workaround)
+    
+  # [Previous temporary fix was a patch that was not picked up after restart of servers...] The permanent fix for character corruption will be rolled into the next update as an executable change, removing the need for the configuration override. (Unfortunately the 2.7.1.1 Hotfix was too far along to benefit from this).
+
+  21-3:
+    event: Old defective code reintroduced after deployment, crash, and restart
+    Event: Wrong code version executed (reintroducing defect)
+    
+    action: Fix defect permanently (and remove temporary fix)
+    Action: Fix defect / Replace temporary fix
+    
+    target: System source code and configuration
+    Target: Tech / Component / Source code and configuration
+    
+    goal: Remove need for temporary fix
+    Goal: Permanent defect fix
+    
+    memos:
+      - Known-Issue: Again a KNOWN issue (temporarily fixed) contributed to incident
+      - First-Fast-Then-Right: (Right) Temporary fix leading to permanent fix
+
+  # [Rollout of hotfix triggered the event and the response required rolling back system state] Looking ahead, we are investigating ways to speed up our rollback and recovery mechanisms.
+
+  21-4:
+    event: UNKNOWN (though the incident involved rollforward and rollback)
+    Event: UNKNOWN
+
+    action: Investigate options for speeding up operation
+    Action: Investigate / Performance improvement options
+    
+    target: Rollback and recovery mechanism
+    Target: Process / Incident response / Rollback and recovery mechanisms 
+    
+    goal: Speed up incident response mechanisms
+    Goal: Reduce time to respond to incidents
+
+    memos:
+      - Improving-Understanding: Investigation required
+
+  # [Crash and manual restart caused the servers to skip loading the configuration and] also skip the verification process [...] This meant that a small percentage of WorldServers were running the old code and the bug that was corrupting character data [...] In a future release, we will address the issue that can cause servers to skip loading configuration data.
+
+  21-5:
+    event: Old defective code reintroduced after deployment, crash and restart
+    Event: Wrong code version executed (reintroducing defect)
+    
+    action: Fix defect
+    Action: Fix defect
+    
+    target: System source code and server configuration
+    Target: Tech / Component / Source code and configuration
+    
+    goal: Prevent restart with "unexpected version"
+    Goal: Ensure intended source code and configuration version used
+
+    memos:
+      - Improving-Understanding: Goal is to constrain unexpected behavior from occuring again
+    
+  # Several months ago, players reported that quest log sorting wasn’t working properly, and we wanted to fix that [...] That fix was conceptually reasonable but, through subtle side effects, it ended up disabling too much of the clean-up process [...] We will also add more protections to the login-account clean-up code, to help prevent future bugs from being introduced into such a critical area.
+
+  21-6:
+    event: Fix for a defect caused new defect due to "subtle side effects"
+    Event: Fix for defect caused new defect 
+    
+    action: Add more protections (VAGUE)
+    Action: Add more protections
+    
+    target: Source code ("critical area")
+    Target: Tech / Component / Source code / Critical area of the code
+    
+    goal: Prevent future bugs from being introduced
+    Goal: Prevent future defects
+    
+    memos:
+    - Risk: Again we are adding MORE protection because the previous protections failed
+    - Similar: Future bugs are similar to the defect that is part of the event
+    
+  # [Continuing from above the change was missed despite ...] 
+  #
+  # (1) we had two domain experts provide code reviews for the change – but sadly, we didn’t spot the bug
+  # (2) we do comprehensive stress testing to try and model user behavior and its impact on our service architecture.
+  # (3) we also have our test teams log in with a number of test accounts in order to verify the player experience [they] gave the all clear.
+  # (4) Because there’s no substitute for millions of real player behaviors, we supplement this testing by closely monitoring service metrics after launch.
+  # 
+  # We are updating our development methodologies to catch issues like this earlier in the release pipeline. 
+
+  21-7:
+    event: Defect missed in dev, review, testing and monitoring
+    Event: Defect deployed (missed in pipeline)
+    
+    action: Update methodologies (VAGUE)
+    Action: Change methodologies (update)
+    
+    target: Development methodologies (possibly end to end)
+    Target: Process / Development methodology
+    
+    goal: Catch issues like this earlier in the release pipeline
+    Goal: Earlier detection of defect
+    
+    memos:
+    - Subtle side effects missed in dev, review and testing learned from incident
+    - Verification activities & relationship between testing & monitoring (limits)
+
+    
+  memos:
+    - Section titled "PREVENTIVE MEASURES"
+
+    # With today’s incident, we have taken similar steps and rolled back accounts to the state they were in as of 8:30 AM PST [...] The 2.7.1 update had the aforementioned bug that caused character data corruption and resulted in our first ever rollback of character data. 
+    
+    - Meanings, consequence and actions around rolling back
+    
+    # Once again we manually restarted those servers and thought everything was fine. We were wrong [...] As a part of our standard practices of verifying a new build, we also have our test teams log in with a number of test accounts in order to verify the player experience. Because we have hundreds of servers in our retail environment, every manual test we performed was (un)lucky enough to hit the “good” servers, and all of them missed the small percentage of servers that were in a bad state. So we gave the all clear.
+    
+    - Uncertainty: Limits and challenges of monitoring and other verification activities
+    - Improving-Understanding: "Once again we manually restarted those servers and thought everything was fine. We were wrong"
+    
+    # Unbeknownst to us, this crash resulted in those WorldServers not applying the previous character data corruption fix. This meant that a small percentage of WorldServers were running the old code and the bug that was corrupting character data. We have verification systems that detect these sorts of version misconfigurations, but the WorldServer crashes and subsequent manual restarts caused the servers to also skip the verification process. Prior to this morning, we had believed skipping these overrides and verifications to be impossible [...]  Our investigation uncovered what we thought was an impossible situation [...]
+    
+    - Improving-Understanding: I love the phrase "Prior to this ... we had believed ... to be impossible"
+    - Interesting & complicated deployment+configuration+verification challenges

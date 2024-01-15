@@ -1,0 +1,163 @@
+#
+# 20.yaml | Monzo
+#
+# Scaling up their Cassandra cluster (initially 21 servers, adding 6) triggered a bunch of failures across their systems (routing, customer support, configuration, ...). The new servers joined the cluster (taking responsibility for some keys) before the data had been streamed to it (which showed up as missing data for some queries).
+# 
+# https://monzo.com/blog/2019/09/08/why-monzo-wasnt-working-on-july-29th
+
+20:
+
+  #  At this point, we've confirmed that something we thought was impossible, had in fact happened. The new servers had joined the cluster, assumed responsibility for some parts of the data (certain partition keys to balance the load), but hadn't yet streamed it over. [...] We've identified gaps in our knowledge of operating Cassandra. While we routinely perform operations like rolling restarts and server upgrades on Cassandra, some actions (like adding more servers) are less common.
+
+  20-1:
+    event: Distributed data store scale-up caused incident (misunderstood config)
+    lesson: Identified gaps in knowledge (of less common operations)
+    Lesson: Correct misconceptions about behavior / Configuration semantics
+
+  # [Previously the had] tested the scale-up on our test environment, but not to the same extent as production. Instead of adding six servers, we tested with one [...] What we failed to account for was quorum (the three servers agreeing on a value). 
+    
+  20-2:
+    event: Distributed data store scale-up caused incident (worked in test)
+    lesson: Differences between scale up in test vs prod (based on quorum size)
+    Lesson: Identify missing dimensions in test activites / Scaling up
+    
+    memos:
+      
+    # What we failed to account for was quorum (the three servers agreeing on a value). With only one new server, it wouldn't matter if it joined the cluster fully and didn't hold any data. [Tested or practiced by adding one server not 6.]
+    
+    - Interesting theme is how testing and practice differs from the real thing
+    
+  # [Production configuration of Cassandra cluster meant that] The new servers had joined the cluster, assumed responsibility for some parts of the data (certain partition keys to balance the load), but hadn't yet streamed it over [...] We've already fixed our use of auto_bootstrap. 
+
+  20-3:
+    event: Distributed data store scale-up caused incident (misunderstood config)
+    Event: Scale up caused failure (misunderstood configuration)
+    
+    action: Change missunderstood configuration
+    Action: Fix configuration (to match intended behavior)
+    
+    target: Distributed data store (Cassandra cluster)
+    Target: Tech / Component / Distributed data store 
+    
+    goal: Safe scale-up operations
+    Goal: Safe operation of system / Scale up
+    
+    memos:
+      - Improving-Understanding: Misunderstanding is a key idea here; they had to research meaning of param
+      - Defense-In-Depth: (20-3, 20-4) Fix one bad configuration setting
+
+  # [Continuing from above] And we've also reviewed and documented all our decisions around the other Cassandra settings. This means we have more extensive runbooks – the operational guides we use to provide step-by-step plans on performing operations such as a scale up or a restart of Cassandra. This'll help fill the gaps in our knowledge, and make sure that knowledge is spread to all our engineers.
+
+  20-4:
+    event: Distributed data store scale-up caused incident (misunderstood config)
+    Event: Scale up caused failure (misunderstood configuration)
+    
+    action: Review and document settings decisions closing knowledge gaps
+    Action: Investigate / Review and document decisions (the why for each setting)
+
+    target: Documentation, runbooks, operational guides (regarding Cassandra)
+    Target: Process / Operational documentation (runbooks, guides)
+    
+    goal: Increase operational safety and fill the gaps
+    Goal: Safe operation of system (through filling knowledge gaps)
+    
+    memos:
+    - Improving-Understanding: A kind of broadening motivated by the recent "impossible behavior", investigation required
+    - This is a PA that leads to a creating, retaining and trasferring an LL (LFI)
+    - Defense-In-Depth: (20-3, 20-4) Check other configuration settings and verify there is no misunderstanding
+      
+  # We discuss whether the scale-up activity could have caused the issue, but discount the possibility as everything appears healthy [...] Another key issue that delayed our actions was the lack of metrics showing Cassandra as a primary cause of the issue. So we're also looking at exposing more metrics and adding potential alerting for strong shifts in metrics like 'row not found'.
+
+  20-5:
+    event: Lack of metrics delayed identifying root cause (the scale up)
+    Event: Operators & responders misled by available metrics (causing delay)
+
+    action: Look into exposing more metrics and alerting (on strong shifts)
+    Action: Investigate / More metrics and alarming
+
+    target: Distributed data store and associated monitoring and alarming system
+    Target: Tech / Component / Storage system and monitoring system
+
+    goal: More quickly identify problems (better visibility)
+    Goal: Improve visibility and diagnosis speed
+
+    memos:
+    # We confirm there's been no impact using the metrics from both the database and the services that depend on it (i.e. server and client side metrics). To do this, we look for any increase in errors, changes in latency, or any deviations in read and write rates. All of these metrics appear normal and unaffected by the operation.
+    
+    - Whatever is measured is what is used to determine that everything is normal
+    - Other metrics (not readily available) would have given the right diagnosis
+    - Alerts were all about downstream effects of the initial failure
+    - Improving-Understanding: Investigation required
+
+  #  At the time you might not have been able to log into the app, send and receive payments or withdraw money [...] get in touch with [...] We'll split our single Cassandra cluster into smaller ones to reduce the impact one change can have [...] We’d like to reduce the likelihood that any single activity can impact more than one area of Monzo [and] we believe this would have been a much less complex issue to deal with. [..] In the long term, we plan to split up our single large cluster into multiple smaller ones [AND the reason this is long-term] We want to make sure we get it right though; doing it in such a way that doesn't introduce too much operational complexity, or slow our engineers down at releasing new features to customers.
+
+  20-6:
+    event: Single data store issue affected many services and features
+    Event: Single issues cascaded to many client services
+
+    action: Split cluster into multiple clusters (based on client services)
+    Action: Partition into multiple clusters by client service
+
+    target: Distributed storage cluster architecture and dependent services
+    Target: Tech / Architecture / Distributed storage cluster and clients
+
+    goal: 1) Reduce impact of single issue, 2) Simplify triage and mitigation, 3) Safer operation at scale
+    Goal: Reduce potential impact & scope of debugging, & safer operation
+
+    memos:
+    # The single cluster approach has been advantageous for engineers building services – they don't have to worry about which cluster to put a service on, and we only have to operationally manage and monitor one thing. But a downside of this design is that a single change can have a far-reaching impact, like we saw with this issue. We’d like to reduce the likelihood that any single activity can impact more than one area of Monzo.
+    
+    - Incident analysis can lead one to make a different set of tradeoffs (theme)
+    
+    # In the long term, we plan to split up our single large cluster into multiple smaller ones [AND the reason this is long-term] We want to make sure we get it right though; doing it in such a way that doesn't introduce too much operational complexity, or slow our engineers down at releasing new features to customers.
+    
+    - First-Fast-Then-Right: (Right) Long term, significant change
+
+    - Defense-In-Depth: (20-6) Multiple goals of a single action
+
+  patterns:
+
+    # I'm not sure what the best way to look at this pattern, is but here is a start on two possibilities
+
+    - Defense-In-Depth:
+        # across the lifecycle (RE for all stages):
+        - Change configuration (immediate fix)
+        - Improve testing of operation (catch pre-prod)
+        - Improve metrics (find issue more quickly in production)
+        - Change architecture (isolate error in production)
+
+    - Specific to general (RE for specific then class of problems)
+
+      - Change specific configuration issue (prevent specific incident)
+      - Improve testing (prevent incident along same dimension)
+      - Improve metrics (try to catch more Cassandra issues)
+      - Change architecture (isolate a class of issues)
+
+  memos:
+
+    - Section titled "To stop this happening again, we're making some changes"
+    - Similar: Section titled "stop this happening again"
+
+    
+    # As a result, during peak load, our Cassandra cluster was running closer to its limits than we'd like. And even though this wasn't affecting our customers, we knew if we didn't address it soon we'd start seeing an increase in the time it'd take to serve requests.
+    
+    - Uncertainty: On the theme of headroom, incident was triggered by scaling up to keep ahead
+    
+    # We discuss whether the scale-up activity could have caused the issue, but discount the possibility as everything appears healthy [...] We don't think this is possible given our understanding of what's happened so far, but we keep investigating.
+    
+    - Investigation misdirected due to assumptions and limited visibility
+
+    # We fixed the majority of issues by the end of that day. And since then, we've been investigating exactly what happened and working on plans to make sure it doesn't happen again. In the spirit of transparency, we'd like to share exactly what went wrong from a technical perspective, and how we're working to avoid it in the future.
+
+    - Make sure it doesn't happen again
+    - Similar: Avoiding "it" which is the "what went wrong"
+
+    # But when our last scale up in October 2018 was complete, we'd set the auto_bootstrap flag to false for our production environment. We did this so that if we lost a server in our cluster (for example, due to hardware failure) and had to replace it, we'd restore the data from backups (which would be significantly faster and put less pressure on the rest of the cluster) rather than rebuild it from scratch using the other servers which had the data.
+    # During the scale-up activity, we had no intention to stream the data from backups. With auto_bootstrap set to false, we expected the six new servers would be added to cluster, agree on the partitions of data they were responsible for, and remain inactive until we initiated the rebuild/streaming process on each server, one-by-one.
+    # But this wasn't the case. It turns out that in addition to the data streaming behaviour, the flag also controls whether new servers join in an active or inactive state. Once the new servers had agreed on the partitions of data they were responsible for, they assumed full responsibility without having any of the underlying data, and began serving queries.
+
+    - A past PA (set a configuration) led to the issue in this report
+
+    # 13:14 Our automated alerts detect an issue with Mastercard, indicating a small percentage of card transactions are failing [...] 13:14 We receive reports from Customer Operations (COps) that the tool they use to communicate with our customers isn't working as expected [...]
+
+    - 1st indications of incident were from downstream services (seemingly coincidental)

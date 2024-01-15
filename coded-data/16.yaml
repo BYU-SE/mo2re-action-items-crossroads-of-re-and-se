@@ -1,0 +1,8 @@
+#
+# 16.yaml | Kaseya
+#
+# A series of updates stemming from a ransomeware attack in which customer data was encrypted. Kaseya obtained the decryption key and made a decryption tool available to their customers (apparently without paying the ransom). There was a partial outage but that is not discussed in detail in this report.
+# 
+# https://www.kaseya.com/potential-attack-on-kaseya-vsa/
+
+# exclude: not an incident report, it is a security incident (partial outage not discussed)

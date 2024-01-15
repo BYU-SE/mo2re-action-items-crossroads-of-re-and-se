@@ -1,0 +1,172 @@
+#
+# 14.yaml | GitHub
+#
+# "At 22:52 UTC on October 21, routine maintenance work to replace failing 100G optical equipment resulted in the loss of connectivity between our US East Coast network hub and our primary US East Coast data center. Connectivity between these locations was restored in 43 seconds, but this brief outage triggered a chain of events that led to 24 hours and 11 minutes of service degradation." Most of that time involved restoring the database clusters to a supported topology.
+#
+# (Incident 13 in IDB)
+
+# VOID URL
+# https://blog.github.com/2018-10-21-october21-incident-report/
+
+# URL of incident report
+# https://github.blog/2018-10-30-oct21-post-incident-analysis/
+
+14: 
+
+  # We are currently performing an analysis [...] determining which writes can be automatically reconciled and which will require outreach to users. We have multiple teams engaged in this effort.
+
+  # excluded: Not a preventative action (recovery action)
+
+  # In our desire to communicate meaningful information to you during the incident, we made several public estimates on time to repair based on the rate of processing of the backlog of data. In retrospect, our estimates did not factor in all variables. We are sorry for the confusion this caused and will strive to provide more accurate information in the future. [Earlier ...] In reality, the time required for replication to catch up had adhered to a power decay function instead of a linear trajectory. [In fact at one point in the incident] It was clear that replication delays were increasing instead of decreasing towards a consistent state. 
+
+  14-1:
+    event: Optimistic TTR estimates misled customers
+    Event: Miscommunication to customers
+    
+    action: Change estimation strategy (consider more variables)
+    Action: Change strategy (increase variables considered)
+    
+    target: Incident response procedures and customer communication
+    Target: Process / Incident response / Customer communication and procedures
+    
+    goal: Set more accurate TTR expectations during incident
+    Goal: Set accurate TTR expectations (incident response)
+
+    memos:
+      - Similar: Want to have a better strategy so the same issue (providing a bad TTR, see the event) doesnt happen in the future
+    
+    
+  # Connectivity between [data centers] was restored in 43 seconds, but this brief outage triggered a chain of events that led to 24 hours and 11 minutes of service degradation. [Primarily due to primaries (and then of course replicas)] in west coast instead of east coast data center. [Because] It’s possible for Orchestrator to implement topologies that applications are unable to support, therefore care must be taken to align Orchestrator’s configuration with application-level expectations. [So they plan to] adjust the configuration of Orchestrator to prevent the promotion of database primaries across regional boundaries. Orchestrator’s actions behaved as configured, despite our application tier being unable to support this topology change [...] cross-country latency was a major contributing factor during this incident. This was emergent behavior of the system [...] 
+
+  14-2:
+    event: (Unexpected) promotion of cross-country primary contributed to failure
+    Event: Cluster manager promotion (unexpectedly) caused failures
+    
+    action: Fix configuration defect (promotion rules)
+    Action: Fix configuration defect
+    
+    target: Cluster manager configuration
+    Target: Tech / Component / Cluster manager configuration
+    
+    goal: Prevent promotion of cross-region primaries
+    Goal: Prevent failure scenario (unsupported cluster topology)
+    
+    memos:
+    - Alternative could be to change applications to tolerate more topologies
+    - Simple PA, though it is the KEY PA in MAJOR outage (interesting contrast)
+    - Improving-Understanding: Event was unexpected
+
+  # We have accelerated our migration to a new status reporting mechanism that will provide a richer forum for us to talk about active incidents in crisper and clearer language. While many portions of GitHub were available throughout the incident, we were only able to set our status to green, yellow, and red [which] doesn’t give [customers] an accurate picture of what is working and what is not [...] in the future will be displaying the different components of the platform so you know the status of each service.
+
+  14-3:
+    event: Only global status was reported (despite mix of service statuses)
+    Event: Unclear and incomplete status reporting
+    
+    action: Migrate to new tool
+    Action: Replace / Migrate to new tool (EXISTING)
+    
+    target: Status reporting tooling for customer communication
+    Target: Process / Incident response / Customer communication / Status reporting tooling
+
+    goal: Communicate per service status during incidents
+    Goal: Effective customer communication / More granular status reporting  
+
+    memos:
+      # We have accelerated our migration to a new status reporting mechanism
+      - Prioritization: Accelerate existing migration to new tool
+
+      # TODO: Does this apply here?
+      - First-Fast-Then-Right: (Right) More granular tool that provides richer forum for us to talk about. (though perhaps no "fast"/existing highlighted in report?)
+
+      - Similar: In the future the status will be more granular (opposite of event)
+
+  14-4:
+    event: Only global status was reported (despite mix of service statuses)
+    Event: Unclear and incomplete status reporting
+    
+    action: Change project priorities
+    Action: Change priorities
+    
+    target: Engineering roadmap
+    Target: Goals / Engineering roadmap / Priorities
+    
+    goal: Complete existing effort more quickly (new status tool)
+    Goal: Accelerate project
+
+    memos:
+      # in the future will be
+      - Prioritization: Incident highlighted importance of granularity
+
+  # Applications running in the East Coast that depend on writing information to a West Coast MySQL cluster are currently unable to cope with the additional latency introduced by a cross-country round trip for the majority of their database calls [...] In the weeks prior to this incident, we had started a company-wide engineering initiative to support serving GitHub traffic from multiple data centers in an active/active/active design [...] The goal of that work is to tolerate the full failure of a single data center failure without user impact. This is a major effort and will take some time [...] This incident has added urgency to the initiative. [...] 
+
+  14-5:
+    event: Network partition led to database cluster and application failures
+    Event: Network partition between data centers (and fallout)
+    
+    action: Add N+1 redundancy at data center level
+    Action: Add redundancy (at data center level)
+    
+    target: Execution architecture (or deployment architecture)
+    Target: Tech / Architecture (deployment or execution)/ Execution architecture (not sure if this is the right term?)
+    
+    goal: Tolerate loss of one data center (and partition?)
+    Goal: Tolerate loss of data center (tolerate failure)
+
+    memos:
+      # "In the weeks prior to this incident, we had started a company-wide engineering initiative [..] This incident has added urgency to the initiative"
+      - Prioritization: Again, a case of reprioritizing already in progress MAJOR initiative  
+      # TODO: Does this apply here?
+      - First-Fast-Then-Right: (Right) Serve traffic from multiple data centers to tolerate full failure without user impact (though perhaps no "fast"/existing highlighted in report?)
+
+  # We will take a more proactive stance in testing our assumptions ... As we continue to grow, it becomes increasingly difficult to capture and transfer the historical context of trade-offs and decisions made to newer generations of Hubbers.
+
+  # excluded: Unclear what is being proposed and what the event was
+  # OR consider capturing it as a lesson-learned since the "todo" is unclear?
+
+  # This incident has led to a shift in our mindset around site reliability. We have learned that tighter operational controls or improved response times are insufficient safeguards for site reliability within a system of services as complicated as ours. 
+
+  14-6:  
+    event: (Unexpected) promotion of cross-country primary contributed to failure
+    lesson: Many (hard to predict) scenarios must be considered in testing
+    
+    memos:  
+    
+    # This was emergent behavior of the system given that we hadn’t previously seen an internal network partition of this magnitude.
+    
+    - Scenario never seen before led to unexpected and unexperienced behavior
+    
+  # To bolster those efforts, we will also begin a systemic practice of validating failure scenarios before they have a chance to affect you. This work will involve future investment in fault injection and chaos engineering tooling at GitHub.
+
+  14-7:
+    event: (Unexpected) promotion of cross-country primary contributed to failure
+    Event: Cluster manager promotion caused failures
+    
+    action: Validate more failure scenarios (using chaos engineering)
+    Action: Add / Testing / Scenarios (using chaos engineering and fault injection)
+    
+    target: Testing practices and tools (fault injection)
+    Target: Process / Testing activities, practices and tools 
+    
+    goal: Test in more (unexpected even) failure scenarios      
+    Goal: Find failures in unanticipated scenarios
+    
+    memos:
+    - Try to find failure scenarios "before they have a chance to affect you"
+    - Early PA handles scenario; this looks for other scenarios (pattern!?)
+    # To bolster those efforts [..]
+    - Defense-In-Depth: (14-7) Additional effort (on top of the listed PAs and lessons learned) will be to introduce new testing practice.
+    - Improving-Understanding: Event was unexpected, goal was to test in unexpected failure scenarios to improve their understanding of the system
+
+  patterns:
+    
+    # TODO: Do these still apply?
+    # - Simple/quick fix for the SPECIFIC scenario (3) and then fix for ANY data center interruption (5)
+    - First-Fast-Then-Right: Fast for a specific scenario then better fix which accounts for multiple scenarios
+      More-Granular: 14-3 (display overall health, then display additional components)
+      Broader: 14-5 (tolerate full failure without user impact, will take time to do right)
+      
+  memos:
+    - Section titled "Next Steps" with subsections resolving data inconsistencies, communication, technical initiatives, and operational initiatives
+    
+    # This incident has led to a shift in our mindset around site reliability.
+    - Shift in mindset about reliability

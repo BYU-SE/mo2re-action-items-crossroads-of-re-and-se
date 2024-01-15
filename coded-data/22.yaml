@@ -1,0 +1,158 @@
+#
+# 22.yaml | Salesforce
+#
+# An emergency configuration change was made to their DNS servers "and the change subsequently exposed a design issue in the shutdown process that resulted in a failed restart of DNS services across multiple Salesforce data centers, thus causing any applications or services that rely on DNS to become unavailable."
+# 
+# https://help.salesforce.com/s/articleView?id=000390251&type=1
+
+# exclude: All URLs are broken now, and the one that was working is not on archive.org - throwing this out since we cannot do review pass on extracted data
+
+#22:
+
+  # NOTE: most of the PAs seem to be MISSING (404s). Only the "Workstream 3 - DNS Architecture Reviews" link is working at the moment.
+
+  #
+  # Short-term Mitigation Action Items 
+  #
+
+  # [Failure exposed a DNS design issue] causing any applications or services that rely on DNS to become unavailable [...] Review of current internal DNS system design to understand the potential impact to failure blast radius. The review includes components such as namespace, content changes, code changes, configuration changes, as well as the tech stack and operational procedures
+
+  # 22-1:
+  #   event: Configuration change led to failure & many dependent services failing
+  #   Event: Failure cascaded to many dependencies
+
+  #   action: Comprehensive system design review
+  #   Action: Investigate / Review system design
+
+  #   target: Internal network infrastructure system (DNS)
+  #   Target: Tech / Infrastructure / Internal network infrastructure system
+
+  #   goal: "Understand impact to failure blast radius"
+  #   Goal: Identify potential failure blast radius
+    
+  #   memos:
+  #   # Additional analysis will continue as a medium-term mitigation action in the new Availability program
+    
+  #   - Called short-term but related to a medium-term version (same with next)
+  #   - Improving-Understanding: Investigation required
+    
+  # # Review and analysis of all critical Tier 0 services in Salesforce, which lack resilience in the event of DNS failures.
+    
+  # 22-2:
+  #   event: Configuration change led to failure & many dependent services failing
+  #   Event: Failure cascaded to many dependencies
+    
+  #   action: Analyze resilience of critical (tier 0) services which failed
+  #   Action: Investigate / Review critical services design
+    
+  #   target: Dependent services of internal network infrastructure system
+  #   Target: Tech / Infrastructure / Dependent services 
+    
+  #   goal: Identify ways to add resilience (GUESS)
+  #   Goal: Identify ways to add resilience
+
+  #   memos:
+  #     - Improving-Understanding: Investigation required
+    
+  # #
+  # # Medium-term Mitigation Action Items 
+  # #
+    
+  # # Provide long-term recommendations to ensure a resilient internal and external DNS architecture, and any design changes that may be necessary for dependent services.  (Target completion by October).
+  # # Design internal Changes to namespace
+  # # Design internal DNS changes to technology stack
+  # # Design internal DNS automation of control configuration and software
+  # # Decision regarding external third-party DNS providers (including back-up)
+  # # Design external DNS Changes to namespace
+  # # Design external DNS automation
+
+  # 22-3:
+  #   event: Configuration change led to failure & many dependent services failing
+  #   Event: Failure cascaded to many dependencies
+    
+  #   action: Recommend design changes and decisions
+  #   Action: Investigate / Recommend design changes
+    
+  #   target: Internal and external network infrastructure system (DNS) 
+  #   Target: Tech / Infrastructure / Internal and external network infrastructure system
+    
+  #   goal: Ensure resilient architecture 
+  #   Goal: Ensure resilient architecture 
+    
+  #   memos:
+  #   - TODO: Could easily break this into 6 PAs (differing only by subsystem)
+  #   - Improving-Understanding: Investigation required
+    
+  # #
+  # # Long-term Mitigation Action Items 
+  # #
+
+  # # Collaborate with Technology Service teams to implement changes where necessary to provide resilience against future DNS failures.  
+  # # Internal DNS Design implementation - Target completion by Q1 2022
+  # # External DNS Design implementation - Target completion by Q1 2022
+
+  # 22-4:
+  #   event: Configuration change led to failure & many dependent services failing
+  #   Event: Failure cascaded to many dependencies
+    
+  #   action: Implement design changes
+  #   Action: Implement design changes
+    
+  #   target: Internal network infrastructure system (DNS) 
+  #   Target: Tech / Infrastructure / Internal network infrastructure system
+    
+  #   goal: Provide resilience against future failures
+  #   Goal: Resilience to future failures
+
+  #   memos:
+  #     - Defense-In-Depth: (22-4, 22-5) Internal DNS changes for same reasons as External
+  #     - Similar: Future DNS failures (the failure that happened)
+    
+  # 22-5:
+  #   event: Configuration change led to failure & many dependent services failing
+  #   Event: Failure cascaded to many dependencies
+    
+  #   action: Implement design changes
+  #   Action: Implement design changes
+    
+  #   target: External network infrastructure system (DNS) 
+  #   Target: Tech / Infrastructure / External network infrastructure system
+    
+  #   goal: Provide resilience against future failures
+  #   Goal: Resilience to future failures
+    
+  #   memos:
+  #     - Defense-In-Depth: (22-4, 22-5) Internal DNS changes for same reasons as External
+  #     - Similar: Future DNS failures (the failure that happened)
+    
+  # memos:
+  #   # The short-term fixes to reduce the immediate risk of recurrence for the May 11 incident have been completed across all workstreams. The remaining action items represent medium-term to long-term roadmap enhancements to improve resiliency as it pertains to the original May 11 impact.
+  #   - Roadmap
+  #   - Similar: Immediate risk of "recurrence" for the incident
+  #   - Risk: assessment
+  #   - First-Fast-Then-Right: (Fast) Reduce immediate risk and may be temporary
+  #   - First-Fast-Then-Right: (Right) Add more things to broaded up what scenarios it accounts for
+
+
+  #   # Salesforce has learned a lot of lessons from the incident involving Pardot permissions that took place in May 2019. Truly resilient systems need layers of safeguards to protect against the unforeseen. Salesforce’s approach to redundancy is to use a “defense-in-depth” strategy, with the expectation that things can and will go wrong. But with overlapping layered safeguards, negative effects can be mitigated.
+    
+  #   - Defense-In-Depth: Comment about defense-in-depth concept (relates to some patterns!)
+    
+  #   # As part of our post-incident remediations and preventative actions plan, Salesforce is focused on improving the enforcement of the Change Management system so that changes are correctly classified and receive the proper amount of review and oversight [...] this incident exposed gaps in the enforcement of [EBF] policies
+    
+  #   - Enforce the (change) processes already in place (including emergency CP)
+    
+  #   # To that end, Salesforce has enacted a new program that is focused on the broader actions that are needed to prevent similar high impact incidents beyond the May 11 disruption.  
+    
+  #   - Hints at much larger changes being planned (due to high incident frequency)
+  #   - Similar: High impact is a dimension of similarity
+    
+  # patterns: 
+    
+  #   # The preventive action plan is comprised of three separate types of remediations: (1) Short-term fixes that were meant to reduce risk of recurrence of the May 11 incident (2) Medium-term fixes intended to further reduce risk and employ systematic enhancements, but requiring some development lead time (3) Long-term changes and innovations to improve resiliency enterprise-wide.
+    
+  #   - Short to medium to long
+    
+  #     - Analyze and review (short-term)
+  #     - Design (medium-term)
+  #     - Implement (long-term)

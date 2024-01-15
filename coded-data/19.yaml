@@ -1,0 +1,105 @@
+#
+# 19.yaml | Cloudflare
+#
+# Disconnection of multiple, redundant fibre connections from one of two core data centers when technicians erroneously disconnected cables in a patch panel (switchboard) that provided all external connectivity to other data centers.
+# 
+# https://blog.cloudflare.com/cloudflare-dashboard-and-api-outage-on-april-15-2020/
+
+19:
+
+  # As part of planned maintenance [..], we instructed technicians to remove all the equipment in one of our cabinets. That cabinet contained old inactive equipment [..] and had no active traffic or data [..]. The cabinet also contained a patch panel (switchboard of cables) providing all external connectivity to other Cloudflare data centers. Over the space of three minutes, the technician decommissioning our unused hardware also disconnected the cables in this patch panel. 
+  # Design: While the external connectivity used diverse providers and led to diverse data centers, we had all the connections going through only one patch panel, creating a single physical point of failure. This should be spread out across multiple parts of our facility.
+
+  19-1:
+    event: Loss of data center connectivity (technicians removed a patch panel)
+    Event: Data center disconnected from internet (during maintenance)
+
+    action: Spread out external connectivity across multiple parts of facility
+    Action: Add external network connection points (change design)
+
+    target: Data center networking infrastructure (patch panel, included)
+    Target: Infrastructure / Data center networking infrastructure design / Network cabling
+
+    goal: Remove single point of failure to ensure connectivity
+    Goal: Prevent repeat failure / Remove single point of failure
+
+    memos:
+      - Categorized as "design" (others are "documentation" and "process")
+    
+  # Documentation: After the cables were removed from the patch panel, we lost valuable time identifying for data center technicians the critical cables providing external connectivity to be restored. We should take steps to ensure the various cables and panels are labeled for quick identification by anyone working to remediate the problem. This should expedite our ability to access the needed documentation.
+    
+  19-2:
+    event: Recovery delayed due to challenges identifying cables
+    Event: Delay in recovery (unnecessary time spent during remediation)
+
+    action: Label cables and panels
+    Action: Add / Documentation (labels to networking hardware)
+
+    target: Cables and panels labels
+    Target: Infrastructure / Data center networking infrastructure documentation / Cabling labels
+
+    goal: Quick identification of cables during remediation & likely maintenance
+    Goal: Reduce time to recover / Quicker access to documentation
+    
+  # Process: While sending our technicians instructions to retire hardware, we should call out clearly the cabling that should not be touched.
+
+  19-3:
+    event: Loss of data center connectivity (technicians removed a patch panel)
+    Event: Data center disconnected from internet (during maintenance)
+
+    action: Add "what not to do" to technician instructions (retiring hardware)
+    Action: Add / Documentation (steps to process include cautions)
+
+    target: Maintenance procedures for data center technicians
+    Target: Process / Maintenance procedures (SOP)
+
+    goal: Prevent repeat event (human error)
+    Goal: Prevent repeat failure / Avoid human error
+
+    memos:
+
+      - SOP to include things NOT to do (cautions)
+
+  # We will be running a full internal post-mortem to ensure that the root causes of this incident are found and addressed.
+
+  19-4:
+    event: Loss of data center connectivity (technicians removed a patch panel)
+    Event: Data center disconnected from internet (during maintenance)
+
+    note: Post is only a partial post-mortem (possibly more PAs coming)
+    exclude: Not a preventative action (a plan to it find more preventative actions) (??)
+    
+    action: Run a full internal post-mortem
+    Action: Perform full post-mortem
+
+    target: Organization
+    Target: People / Organization
+
+    goal: "Ensure that the root causes of this incident are found and addressed"
+    Goal: Identify and address all root causes
+    
+    memos:
+      # We will be running a full internal post-mortem to ensure that the root causes of this incident are found and addressed.
+      - Partial post-mortem where not all RCAs are performed yet
+      - More PAs may be identified after further incident analysis
+
+
+  patterns: # JS: Not too compeling, yet imo
+
+    - Design, Documentation and Process (something to think about?)
+    - Prevent (x2) + Speed up recovery (just in case?)
+
+  memos:
+
+    - Section titled "Moving forward"
+
+    # We have identified several steps we can take to address the risk of these sorts of problems from recurring in the future, and we plan to start working on these matters immediately
+
+    - Risk: No guarantee but addressing the "RISK of ... recurring in the future"
+    - Improving-Understanding: Identifying steps to take in the future regarding risk that they were unaware of (or had discounted)
+    - Similar: Recurring in the future is a risk
+
+    # As part of planned maintenance at one of our core data centers, we instructed technicians to remove all the equipment in one of our cabinets.
+    
+    - Evolution may be driven by better understanding of how context may evolve
+    

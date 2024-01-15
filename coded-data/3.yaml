@@ -1,0 +1,183 @@
+#
+# 3.yaml | Mailchimp
+# https://mailchimp.com/what-we-learned-from-the-recent-mandrill-outage/
+#
+# "Mandrill suffered a significant outage due to a database failure, which impaired our ability to send emails [...] During the outage, we were sending only 80% of queued emails."
+
+3:
+
+  # Previously: "Our team determined wraparound was not an immediate threat, but we added a ticket to the backlog to set up additional monitoring."
+
+  # Knowledge of and access to Mandrill systems and monitoring is concentrated in a small number of individuals. [Context for this learning is not too clear from the incident report.]
+  3-1:
+    #TODO: Do lessons get IDs along with PAs? Is that going to cause a problem if we only look at PAs
+    event: UNCLEAR (incident involved many responders)
+    lesson: System knowledge and access is concentrated
+    
+    Intent: Improving response time
+    Target: Organization and management / Knowledge and expertise
+
+    memos:
+      - Pain-Point: Listed under "factors which slowed our response down"
+
+  # These jobs then queue on disk on the Mandrill app servers. The increased volume of jobs being written to disk, as well as logs detailing the failures of those jobs, caused disk space to run low on every Mandrill app server [...] Logging of the Mandrill system is dependent on having a locally writable disk.
+  3-2:
+    event: Second order effect was queues nearly filling disks (near-miss)
+    lesson: Logging system is dependent on locally writable disk
+    
+    Intent: Improving response time
+    Target: Support systems / Logging
+    
+    memos:
+      - Minimalistic-Requirements: Seeing how support systems must work while under duress is interesting
+      - Near-Miss: Learning from a near-miss
+      - Pain-Point: Listed under "factors which slowed our response down"
+
+  # The first exception was logged overnight on Sunday. Unrelated exceptions coming in from other systems drowned it out in our centralized reporting, which slowed our detection time [...] Differentiating between logs for malformed API requests and actual application errors was not easy. This made it difficult or impossible to separate failures while inspecting logs.
+  3-3:
+    event: Relevant indicators were drowned out in centralized logs
+    lesson: Noisy logs hamper detecting and investigating failures
+
+    Intent: Improving detection and investigation
+    Target: Support systems / Logging (hygiene)
+    Learning: Hard to detect signal in logs
+
+    memos:
+      - Pain-Point: Listed under "factors which slowed our response down"
+
+  # We had limited visibility into job health.
+  3-4:    
+    event: UNCLEAR (Job processing failing and queuing 20% of jobs)
+    lesson: Status information was limited (job health state)
+
+    Intent: Improving response time / Investigating
+    Target: Support systems / Fine grained status information
+
+    memos:
+      - Pain-Point: Listed under "factors which slowed our response down"
+
+  # We then moved [operational data] to other live shards to allow normal processing of jobs [...] By this point, we had determined it would be possible to run the app without the Search and Url tables [...] Partial code deployments to aid triage were risky because of disk space issues.
+  3-5:
+    event: Second order effect was queues nearly filling disks (near-miss)
+    lesson: Deploying code changes to unhealthy servers is risky
+    
+    Intent: Improving response time
+    Target: Support systems / Deployment
+    Leaning: Support systems functioning under duress
+
+    memos:
+      - Risk: This a retrospective risk assessment (how risky was what we did?)
+      - Pain-Point: Listed under "factors which slowed our response down"
+
+# -----------------------------------------------------------------------------
+# Things that worked well and which we’ll continue to do going forward
+# -----------------------------------------------------------------------------
+
+  # The incident command muscles that we've been building paid off—close coordination of the response was critical to our recovery.
+  3-6:
+    event: UNCLEAR (incident command was rotated)
+    lesson: Close coordination is critical for recovery (complex failure)
+    Target: Incident response procedures / Responder coordination
+
+  # It quickly became apparent that the full vacuum would take many days to complete [...] We ultimately landed on the truncation strategy because of a video conference sync. Taking the time to regroup and reassess was valuable and led to a faster solution.
+  3-7:
+    event: Initial attempted solution was estimated to take 40 days
+    lesson: Pausing and reassessing can improve response time
+    Address: Incident response time
+    Target: Incident response procedures
+
+    memos:
+    - Pause-Remediation-To-Reassess: Counter intuitive that pausing might speed things up
+
+  # Having clearly designated roles was essential: ICs, scribes, technical liaisons, and points of contact. These roles helped us communicate across many different teams and across a long stretch of time.
+  3-8:
+    event: UNCLEAR (incident involved many responders and was long)
+    lesson: Clear responder roles improves communication 
+    Target: Incident response procedures / Responder coordination
+
+    memos:
+      - Many of the LLs may be related to the duration of the incident
+
+  # A periodic cadence of summaries and a list of recent/outstanding decisions kept responders on track and aligned.
+  3-9:
+    event: UNCLEAR (incident involved many responders and was long)
+    lesson: Periodic incident updates are useful for coordination
+    Target: Incident response procedures / Responder coordination
+
+    memos:
+      - A start on a list of what needs to be communicated during incident
+
+  # Lots of folks volunteered to help, and they ramped up quickly
+  3-10:
+    event: Incident involved many responders and was long (ICs rotated)
+    lesson: Rotating responders requires quick ramp up
+    Target: Incident response procedures / Responder ramp up
+
+  # Mandrill by default deletes queued mail older than 48 hours. As we approached this limit, more drastic solutions were considered. We were forced to get creative, which was good.
+  3-11: 
+    event: Longing recovery nearly ran up against 48 hour retention limit
+    lesson: Retention time for queued events dictates maximum time to resolve
+    Target: Incident response procedures / Planning
+
+    memos:
+      - Interesting example of time limits (or pressure) during response
+
+  # Responders felt well taken care of, and we were lucky that our volunteers were able to prioritize this work over other things.
+  # TODO: consider combining with 3-10
+  3-12:
+    event: Incident involved many responders and was long (ICs rotated)
+    lesson: Rotating responders helps with well being of responders
+    Target: Incident response procedures / Responder care
+    
+    memos:
+      - Health and well-being of responders is an interesting consideration
+
+# -----------------------------------------------------------------------------
+# Some things went surprisingly well during the incident
+# -----------------------------------------------------------------------------
+
+  # A lot of second-order impacts were related to disk queues filling up—running in the cloud added flexibility to our response, and we were able to expand storage for these instances quickly.
+  3-13:
+    event: Second order effect was queues nearly filling disks (near-miss)
+    lesson: Quickly adding capacity can prevent cascades
+    Address: Preventing cascading failures
+    Target: Incident response procedures / Scaling
+
+  # After verifying that this would free the associated XIDs, we decided to truncate the tables [...] We were lucky that we had data we could delete at all, and even more lucky that it included the largest table holding up the vacuum.
+  3-14:
+    event: Responders truncated database data to speed up recovery
+    exclude: No lesson detected, just stating something was lucky
+  
+
+  patterns:
+    # The autovacuum process on shard4 likely fell behind due to the higher load, though it may have failed outright—we are unable to determine for certain which occurred.
+    - Uncertainty: Uncertainty is an import RE consideration and persists even after PAs
+    - Uncertainty: Rhymes with Unforseeable concept.
+    - Improving-Understanding: They are unsure what actually happened in the system
+
+    # We held a series of formal debriefs over the course of a week, gathering input from dozens of individuals involved in our response. We’re ready to share what we learned [...] Hearing multiple perspectives on the same system helps us to clarify our understanding of the behavior of the system as a whole.
+    - Expensive-Post-Mortem: Some incidents may require many people and time to analyze
+
+    
+
+  memos:
+    # Our team determined wraparound was not an immediate threat, but we added a ticket to the backlog to set up additional monitoring.
+    - Prioritization: Requirements engineering involves prioritization and PMs provide input
+
+    # We identified some other factors which slowed down our response [...] Things that worked well and which we’ll continue to do going forward [...] Some things went surprisingly well during the incident
+    - PAs-About-Incident-Response: Long recovery and lessons are generally about incident response (true?)
+    - Went-Well: Most learnings were "what went well" type (a pat on the back)
+    - Missing-Aspect: No LLs cover what actually made recovery slow
+
+    # Once the outage was resolved, we committed to conducting a full review of the incident and our response, and to sharing what we learned with our customers.
+    - Learning-From-Incident-Response: LFI may be not just about the incident, but the incident response
+    - Improving-Understanding: Learning from the incident
+    
+    # The root cause of this issue was something we expect our services to handle correctly-an outage of one node within a highly available cluster [...] We also tweeted that some users would see residual effects from the outage, but most customers would start to see features working as expected.
+    - FDSE-Requirements: PAs may not represent new reqs but plans to meet existing reqs (FDSE)
+    - Improving-Understanding: Expectation was different from what happened, want to change things so expectation is met
+
+    # Incidents are usually comprised of several systems—both technical and human—interacting and overlapping in unexpected ways.
+    - Learning-Socio-Technical: LFI can (often should?) target the broader soci-technical system
+
+    

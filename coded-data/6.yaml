@@ -1,0 +1,114 @@
+#
+# 6.yaml | Flowdock
+#
+# High load caused the application data to become hung due to high CPU usage. Database and application were restarted, and it was discovered that a table was corrupted. After a snapshot restore, there were still access problems which found that bad data was still in the cache. Another snapshot of a different database was restored and data was lost during the incident window. Failed integration calls resulted in the removal of integration and require manual action to be re-added.
+# 
+# https://web.archive.org/web/20200915190423/https://flowdock-resources.s3.amazonaws.com/legal/Flowdock-RCA-For-Incident-On-2020-04-21.pdf
+
+6:
+
+  # The application experienced a sudden surge in user activities from multiple organizations. Increased h/w resources for database server to handle higher loads in addition to already increased resources
+  
+  6-1:
+    event: Database was hung due to high load
+    Event: Hung database (due to high-load from customers)
+    
+    action: Increase database server hardware
+    Action: Scale up (hardware)
+    
+    target: Database hardware
+    Target: Tech / Component / Database
+    
+    goal: Gracefully handle increased load
+    Goal: Handle growth in load 
+    
+    memos:
+      - Do-Even-More: They had already done the action (increased resources available to systems) to prevent the event, but it was insufficient
+      - Similar: They had already done the action (increased resources available to systems) to prevent the event, but it was insufficient
+      - Uncertainty: Rhymes with Tipping-Point concept
+    
+  # Improved monitoring of database server response time at more fine-grained time intervals
+  
+  6-2:
+    event: UNKNOWN (maybe DB became hung before incident detected)
+    Event: UNKNOWN (Failure was first indication)
+    
+    action: Monitor database at more fine-grained time intervals
+    Action: Add / Monitoring / Frequency (more fine-grained time intervals)
+    
+    target: Monitoring system
+    Target: Tech / Component / Monitoring systems
+    
+    goal: UNKNOWN (likely more timely notification)
+    Goal: UNKNOWN
+
+  # Enhancing the current failover mechanism to switch the application to a secondary database in the event of an unrecoverable failure on the primary database server.
+  
+  6-3: 
+    event: Unrecoverable failure in primary with no failover
+    Event: Primary database failure (with no failover)
+    
+    action: Enhance failover mechanism to use secondary database (add secondary?)
+    Action: Improve failover mechanisms
+    
+    target: Database failover mechanism (primary and secondary servers)
+    # TODO: Decide if this is categorized right?
+    Target: Tech / Component / Database failover mechanism (failure response mechanism)
+    
+    goal: Failover to secondary in the event of an unrecoverable failure
+    Goal: Remove hard dependency ?? TODO Check alt
+    # Goal-alt: Failover
+    
+    # TODO: QUESTION I can't tell if this mechanism already existed but didn't work or?
+    
+  # Flowdock went down and was restarted [...] Inclusion of a Database Administrator in the emergency change approval committee to evaluate database failures before applications are restarted.
+    
+  6-4:
+    event: Responders restarted database without verifying data integrity
+    Event: Manual database system restart (incident response)
+    
+    action: Include a DBA (expert) on emergency change approval committee
+    Action: Add expert and step to procedure (during incident response)
+    
+    target: Emergency change approval committee (procedures)
+    Target: Process / Emergency change committee and procedures
+    
+    goal: Add expert to reduce likelihood of poor decision making
+    Goal: Improve decision making (avoid exacerbating incident during response)
+    
+    memos:
+    - Goal may also be avoid corrupting database
+    - Sometimes our automatic responses ("restart system") exacerbate failures
+    
+  # A few internal users and customers still seemed to experience views of cross- organizational flows [...] as the user IDs generated in #2 were still in the cache [...] Process and technology improvements to invalidate logged-in user sessions and cached data, by providing them a maintenance notification in advance, when the application is restored or restarted.
+
+  6-5:
+    event: After repairing database, errors persisted due to cached data
+    Event: Invalid cached data prolonged incident
+    
+    action: Add support for invalidating sessions and caches
+    Action: Add / Feature / Session and cache invalidation support
+    
+    target: Process and technology (for managing application caches)
+    Target: Process / Incident response / Cache technology and process
+    
+    goal: Quicker incident recovery (avoid using invalid cache data)
+    Goal: Reduce time to recover (avoid using invalid cache data)
+    
+    memos:
+    - Support needed when "application is restored or restarted"
+    
+    # A few internal users and customers still seemed to experience views of cross- organizational flows [...] as the user IDs generated in #2 were still in the cache
+    
+    - Interesting to consider a list of cache related issues and actions (AXIAL)
+
+  memos:
+    
+    - Getting-Worse: Partially down, down, longer down (down 3 times, more serious each time)
+    
+    # In our effort to ensure that we prevent such an occurrence from happening in the future, we are introducing the following additional measures in our application hosting and monitoring procedures
+    
+    - Additive-PAs: My sense is that PAs are usually additive (what are the consequences?)
+    - Similar: "In our effort to ensure that we prevent such an occurrence from happening in the future"
+    
+    

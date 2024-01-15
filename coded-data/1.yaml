@@ -1,0 +1,9 @@
+#
+# 1.yaml | Chef
+# https://web.archive.org/web/20190923192224/https://blog.chef.io/2019/09/19/chefs-position-on-customer-engagement-in-the-public-and-private-sectors/
+#
+# "Earlier today, a former Chef employee removed several Ruby Gems, impacting production systems for a number of our customers. Our entire team has worked to minimize customer downtime and will continue to do so until we restore services to 100% operation."
+#
+# Follow up reports (e.g., https://web.archive.org/web/20190922004537/https://blog.chef.io/2019/09/20/an-update-to-the-chef-community-regarding-current-events/) include a timeline of the incident, and only include vague statements about what they are going to do (probably due to the political nature of the incident)
+
+# exclude: not an incident report

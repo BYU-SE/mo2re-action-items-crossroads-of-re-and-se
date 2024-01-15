@@ -1,0 +1,83 @@
+#
+# 5.yaml | Autofarm
+#
+# A version upgrade of Venus Protocol (a block chain/financial product managed by a separate team of "community" developers) without the knowledge of Autofarm that introduced a new fee structure. "Although steps were taken to prepare for this event, our vaults were still unable to fully cater for this fee" and manual withdraw actions were required by users.
+# 
+# Autofarm incident report: https://medium.com/autofarm-network/21-april-2021-venus-vaults-post-mortem-1518ae7399c6
+# Archive Link: https://web.archive.org/web/20210901163409/https://medium.com/autofarm-network/21-april-2021-venus-vaults-post-mortem-1518ae7399c6
+
+# Venus community post: https://blog.venus.io/a-letter-from-venus-to-community-members-and-users-ceb389210afc
+
+5: 
+  # TODO: does this fit our definition of an "incident"?
+
+  # AutoSAFU protocol insurance has shown its strength in trying times like this and hence, we will continue pledging the rebates which we receive monthly from Binance’s BUIDL reward program to the AutoSAFU.
+
+  # excluded: no action proposed (part of finishing the response, maybe?)
+  # TODO: This is a positive lesson perhaps?
+    
+  # We will scale on the number of moderators and volunteers to have a more holistic coverage across the communities and different time zones. This way, better customer support can be provided as required by the community.
+  
+  5-1:     
+    event: Customer support problems across timezones (due to tz centralization)
+    Event: Slow incident response
+    
+    action: Add moderators across "communities and different time zones"
+    Action: Hire moderators (across timezones)
+    
+    target: Moderator and volunteer pool (customer support)
+    Target: People / Organizational structure (customer support)
+    
+    goal: Improve customer support across timezones
+    Goal: Timely customer support (around the clock)
+    
+  # [Incident response was slow because] most of the team lives in the GMT+8 timezone [...] We will onboard more developers for more coverage on the different time zones so that the protocol has more bases covered even during the team’s wee hours.
+  
+  5-2:
+    event: Incident response was delayed (due to tz centralization)
+    Event: Slow incident response
+    
+    action: Recruiting developers in more timezones
+    Action: Hire developers (across timezones)
+    
+    target: Engineering staffing
+    Target: People / Organizational structure (staffing)
+    
+    goal: Improved incident response during "team's wee hours"
+    Goal: Timely incident response (around the clock)
+    
+  # Unbeknownst to the Autofarm team, Venus Protocol’s VIP-12 part 1 was executed [...] We will set up an internal community that focuses on monitoring the different updates of the projects which we interact with on our platform (vaults which we deploy, DEXes which we integrate into AutoSwap and tokens which are whitelisted on our platform)
+
+  5-3:
+    event: Unplanned for update of (third party) project
+    Event: Unexpected dependency change
+
+    action: Setup internal community (to monitor third party projects)
+    Action: Add new group 
+
+    target: Internal community (support teams)
+    Target: People / Organizational structure 
+
+    goal: Maintain awareness of changes made by integrated projects
+    Goal: Monitor and react to dependency changes (for third-party projects)
+
+    memos:
+      - Improving-Understanding: Unexpected, unplanned change
+    
+  # We will work more closely with these projects in a BSC Alliance to update the various projects who are interdependent to contribute to a thriving BSC community. (There is already an official BSC Ecosystem Partner Telegram Channel created by the Binance Chain team, better coordination can be done via such channels)
+  5-4:
+    event: Communication with integrated projects was hard (used DMs)
+    Event: Cross project impact
+
+    action: (Process to) keep interdependent projects updated on changes (VAGUE)
+    Action: Develop coordination process (cross project)
+
+    target: Inter-project coordination and communication (VAGUE)
+    Target: Process / Organization and coordination process
+
+    goal: Better coordination between integrated (third-party) projects
+    Goal: Improve cross-project coordination
+
+  memos:
+    - PA-Section-Title: Section called "Moving Forward"
+    - Theme-Of-Trigger: Trigger and theme here is the communication and coordination btw projects

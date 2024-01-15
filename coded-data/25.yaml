@@ -1,0 +1,231 @@
+#
+# 25.yaml | AWS (Kinesis)
+#
+# New servers were added to the front-end fleet in one region causing "all of the servers in the fleet to exceed the maximum number of threads allowed by an operating system configuration."
+#
+# https://aws.amazon.com/message/11201/
+
+25:
+
+  # In the very short term, we will be moving to larger CPU and memory servers, reducing the total number of servers and, hence, threads required by each server to communicate across the fleet. This will provide significant headroom in thread count used as the total threads each server must maintain is directly proportional to the number of servers in the fleet. Having fewer servers means that each server maintains fewer threads.
+
+  25-1:
+    event: Added servers caused servers to "exceed the maximum number of threads"
+    Event: Scaling up hit (surprising) scaling limit (threads)
+    
+    action: Move to larger (CPU and memory) and (so) fewer servers
+    Action: Move to larger and fewer servers
+    
+    target: Front-end fleet hardware
+    Target: Tech / Infrastructure / Fleet hardware / Instance types
+    
+    goal: Reduce needed threads (due to fewer servers) 
+    Goal: Reduce resource usage to avoid limit
+
+    memos:
+    - Uncertainty: Headroom (CPU/memory) as a safety margin and goal
+
+  # The diagnosis work was slowed by the variety of errors observed. We were seeing errors in all aspects of the various calls being made by existing and new members of the front-end fleet, exacerbating our ability to separate side-effects from the root cause [...] We are adding fine-grained alarming for thread consumption in the service.
+
+  25-2:
+    event: Threads were exhausted but notifications were late and noisy
+    Event: No notification (of thread exhaustion)
+    
+    action: Add more specific or "fine-grained alarming" (thread utilization)
+    Action: Add / Monitoring / Granular alarming
+    
+    target: Monitoring and alarming system and/or service
+    Target: Tech / Component / Monitoring system and/or service
+    
+    goal: Notify about thread exhaustion (clearly and timely)
+    Goal: Timely and clear notification
+      
+    memos:
+    
+    # We were seeing errors in all aspects of the various calls being made by existing and new members of the front-end fleet
+    
+    - Monitoring and alarming hygiene is important for diagnosis (theme?!)
+
+  # [During the incident, they] didn’t want to increase the operating system limit without further testing [so post incident they will] finish testing an increase in thread count limits in our operating system configuration, which we believe will give us significantly more threads per server and give us significant additional safety margin there as well.
+
+  25-3:
+    event: Threads were exhausted and OS limit was conservative
+    Event: Thread exhaustion (exceeding OS limit)
+    
+    action: Test system with increased OS thread limit
+    Action: Perform testing
+    
+    target: Operating system configuration for servers in fleet
+    Target: Tech / Infrastructure / Fleet OS configuration
+    
+    goal: Increase available threads and provide additional "safety margin"
+    Goal: Safe operation of system / Verify increased resource limit (threads)
+    
+    memos:
+    - Prioritization: Testing needed first before change (25-4) could be considered
+    - Change was considered during the incident but testing was needed first
+    - Change was discarded since another event happened (they completed removal of the additional capacity which triggered the event) and so the same triggering action would not re-occur upon restart of the system (this memo came from the IR, not the summary above!)
+
+  25-4:
+    event: Threads were exhausted and OS limit was conservative
+    Event: Thread exhaustion (exceeding OS limit)
+    
+    action: Increase configuration to allow more threads
+    Action: Change configuration
+    
+    target: Operating system configuration for servers in fleet
+    Target: Tech / Infrastructure / Fleet OS configuration
+    
+    goal: Provide additional "safety margin"
+    Goal: Safe operation of system / Increase safety margin
+    
+    memos:
+    - Prioritization: Testing needed first (25-3) before change could be considered
+    - Test and change (simple sort of obvious pattern)
+    - Uncertainty: Headroom (OS limit of threads) as a safety margin and goal
+
+  # The front-end fleet is composed of many thousands of servers, and for the reasons described earlier, we could only add servers at the rate of a few hundred per hour [...] In addition, we are making a number of changes to radically improve the cold-start time for the front-end fleet [...] We are moving the front-end server cache to a dedicated fleet.
+
+  25-5:
+    event: Restart was slow because servers populated cache and served requests
+    Event: Slow restart for service (delaying recovery)
+   
+    action: Add dedicated cache fleet (separate service into two fleets)
+    Action: Partition service fleet functionally
+    
+    target: Caching and request handling fleets (execution architecture)
+    Target: Tech / Architecture (deployment) / Service fleet and cache fleet
+    
+    goal: Reduce restart time (by making servers stateless)
+    Goal: Reduce time to recover / Cold start time
+      
+    memos:
+    - Cold start is a fixed cost and a penalty for restarting, important in mitigation
+    - Split two separate functions into two separate fleets
+
+  # In addition, we are making a number of changes to radically improve the cold-start time for the front-end fleet [...] We will also move a few large AWS services, like CloudWatch, to a separate, partitioned front-end fleet.
+
+  25-6:
+    event: UNKNOWN (cold start? cascading effects to other services? thread counts?)
+    Event: UNKNOWN
+
+    action: Partition service (and client load)
+    Action: Partition service (split load)
+    
+    target: Front-end fleet (and dependent services)
+    Target: Tech / Architecture (deployment) / Service fleet and clients
+    
+    goal: UNKNOWN (likely headroom or isolation)
+    Goal: UNNKOWN
+
+    memos:
+    - unknown doesn't imply that there is thoughtlessness
+
+  # In the medium term, we will greatly accelerate the cellularization of the front-end fleet to match what we've done with the back-end [...] Cellularization is an approach we use to isolate the effects of failure within a service, and to keep the components of the service (in this case, the shard-map cache) operating within a previously tested and operated range. This had been under way for the front-end fleet in Kinesis, but unfortunately the work is significant and had not yet been completed. In addition to allowing us to operate the front-end in a consistent and well-tested range of total threads consumed, cellularization will provide better protection against any future unknown scaling limit.
+
+  25-7:
+    event: Added servers caused servers to "exceed the maximum number of threads"
+    Event: Scaling up hit limit (threads)
+    
+    action: Cellularize (partition into multiple sub-fleets)
+    Action: Partition around "cells" (EXISTING)
+    
+    target: Front-end service fleet deployment architecture (including cache)
+    Target: Tech / Architecture (deployment) / Service fleet and cache fleet
+    
+    goal: Isolate failure effects and protect against unknown scaling limits
+    Goal: Isolate failure and protect against unknown scaling limits
+    
+    memos:
+    - Time frame is "medium term"
+    - Prioritization: The plan is to "greatly accelerate" what was already planned
+    - The project is to "match what we've done with the back-end", meaning they are confident in this approach and it has worked well in other places. also matching architecture reduces burden.
+    - Cellularization is an approach we use to... sounds like its standardized at the org to tackle this problem.
+    - work is significant
+    - Similar: able to protect against "future unknown scaling limit" is a similarity
+
+  25-8:
+    event: Added servers caused servers to "exceed the maximum number of threads"
+    Event: Scaling up hit limit (threads)
+    
+    action: Greatly accelerate project
+    Action: Change priorities
+    
+    target: Engineering roadmap
+    Target: Goals / Engineering roadmap
+    
+    goal: Complete existing project more quickly ("significant")
+    Goal: Accelerate project
+
+    memos:
+    - Prioritization: Accelerate development
+
+
+  # There were a number of services that use Kinesis that were impacted as well [...] the prolonged issue with Kinesis Data Streams triggered a latent bug in [the] buffering code that caused the Cognito webservers to begin to block on the backlogged Kinesis Data Stream buffers [causing] elevated API failures and increased latencies [so] to prevent a recurrence of this issue, we have modified the Cognito webservers so that they can sustain Kinesis API errors without exhausting their buffers that resulted in these user errors.
+
+  25-9:
+    event: Dependent service exhausted buffers (causing cascading failures)
+    Event: Buffering on dependency errors exhausted resources
+    
+    action: Fix error handling in buffering code (handling of failed dependency)
+    Action: Fix error handling defect
+    
+    target: Authentication service (dependent of failed service)
+    Target: Tech / Component / Service (dependent on failed service)
+    
+    goal: Tolerate sustained unavailability of dependency
+    Goal: Tolerate sustained unavailability of dependency (avoid exhaustion)
+    
+    memos:
+    - Consider how action / resilience is different than target, and compare to 42's action vs target
+    - Similar: "prevent a recurrence of this issue"
+
+  # There were a number of services that use Kinesis that were impacted as well [...] While CloudWatch currently relies on Kinesis for its complete metrics and logging capabilities, the CloudWatch team is making a change to persist 3-hours of metric data in the CloudWatch local metrics data store. This change will allow CloudWatch users, and services requiring CloudWatch metrics (including AutoScaling), to access these recent metrics directly from the CloudWatch local metrics data store. This change has been completed in the US-EAST-1 Region and will be deployed globally in the coming weeks.
+
+  25-10:
+    event: Service failed and dependent logging application lost functionality
+    Event: Functionality unavailable due to failed dependency
+
+    action: Add local cache to store metrics
+    Action: Add / Component / local cache information ("owned" by dependency)
+
+    target: Logging application (dependent on failed system)
+    Target: Tech / Component / Service (dependent on failed service)
+
+    goal: Tolerate extended downtime of dependency (for key functionality)
+    Goal: Tolerate extended downtime of dependency (graceful degradation)
+    
+    memos:
+    - First-Fast-Then-Right: partial work being done (deployed in 1 region), and deploying the rest in future weeks
+    - quote in event is not included in comment above
+
+  # Outside of the service issues, we experienced some delays in communicating service status to customers during the early part of this event. We have two ways of communicating [...] While this worked as expected, we encountered several delays during the earlier part of the event in posting to the Service Health Dashboard with this tool, as it is a more manual and less familiar tool for our support operators [...] Going forward, we have changed our support training to ensure that our support engineers are regularly trained on the backup tool for posting to the Service Health Dashboard.
+
+  25-11:
+    event: Delayed status updates due to unfamiliarity with backup posting tool
+    Event: Delay in customer communication (reliance on unfamiliar tools)
+    
+    action: Change support engineer training (cover backup tools)
+    Action: Change engineering training
+    
+    target: Incident response procedures and training
+    Target: Process / Incident response / Training and procedures
+    
+    goal: Quicker customer status updates during incident (affecting tooling)
+    Goal: Timely customer communication (system status updates)
+    
+    memos:
+    - Incident response tooling didn't work because of the incident (cognito auth)
+    - The problem (responders don't know tool) mostly affected communication (delayed) in the beginning of the incident mitigation. PA likely only has an influence in that part of the mitigation as well.
+
+
+  memos:
+    
+    - Could analyze how often and what changes are made to failed system vs deps
+
+  patterns:
+    # TODO: Is this the same pattern?
+    - First-Fast-Then-Right (resource starvation):
+      - First, "in the short term" add headroom (1)
+      - Soon there after, increase limits (3)
+      - Finally, "in the medium term" re-architect (6)

@@ -1,0 +1,69 @@
+#
+# 4.yaml | Asana
+#
+# A later (in the day) than usual deployment of code that "had a bug, which resulted in the logging being triggered dramatically more often than we had anticipated" increasing CPU utilization which (when combined with morning peak traffic) increased latency and longer DB connections  
+#
+# https://theworkback.com/yesterdays-outage-2/
+
+4: 
+  # We had sufficient headroom that the CPU increase didn’t cause any problems, allowing the issue to go unnoticed on Wednesday night [and when incident began] Asana was still up [...] We identified systems and procedures that we can improve in three main areas: [1] detecting problems before they become user facing.
+  4-1:
+    event: CPU utilization increase not noticed until peak (defect deployed)
+    Event: Fault not noticed until peak
+    
+    action: UNKNOWN
+    Action: UNKNOWN
+    
+    target: UNCLEAR (systems and procedures not specifically specified)
+    Target: UNCLEAR
+    
+    goal: Detect "problems before they become user facing"
+    Goal: Earlier detection (before user impact)
+    
+    memos:
+      - Uncertainty: Headroom, Sufficient headroom led to event (should headroom be explicitly stated so monitoring can be provided when headroom is reduced?)
+    
+  # One of the engineers noticed the increased logging on the web servers, but discarded this line of investigation, since it didn’t match the hypotheses that were being explored [...] We identified systems and procedures that we can improve in three main areas: [2] reducing the amount of time required for on-call engineers to triage incidents [continued below ...]
+  4-2:
+    event: Fault was identified early but discarded, delaying triage
+    Event: Slow triage (initially discarded correct trigger!!!)
+    
+    action: UNKNOWN
+    Action: UNKNOWN
+    
+    target: UNCLEAR (systems and procedures not specifically specified)
+    Target: UNCLEAR
+    
+    goal: Reduce time to triage (for on-call engineers)
+    Goal: Reduce time to triage
+    
+    memos:
+      - Changed-RCA: Discarded line of investigation that was the issue since it didn't "match the hypotheses that were being explored"
+
+  # Between 08:08am and 08:29am we tried to identify a safe version of the code that we could revert to. We had a recent set of reverts the day before, so had we just picked the previous revision, we would have ended up with bad code [...] We identified systems and procedures that we can improve in three main areas: [3] reducing the amount of time to fix problems once they have been identified.
+  4-3:
+    event: 34mins finding rollback target and blacklisting defective version
+    Event: Slow rollback (mostly figuring out where to rollback to)
+    
+    action: UNKNOWN
+    Action: UNKNOWN
+    
+    target: UNCLEAR (systems and procedures not specifically specified)
+    Target: UNCLEAR
+    
+    goal: Reduce time to fix issue after identification
+    Goal: Reduce time to fix issue
+    
+  patterns:
+    # We identified systems and procedures that we can improve in three main areas: detecting problems before they become user facing, reducing the amount of time required for on-call engineers to triage incidents, and reducing the amount of time to fix problems once they have been identified.
+    - Defense-In-Depth: Possible categorization of actions; helps defines "depth"
+
+
+  memos:
+    - PA-Section-Title: No dedicated section, a paragraph 2 from the end described response.
+
+    # With just Asana employees on this version, those machines were not overloaded. 
+    - Environments: Differences in responder envs (analogous to differences in test envs)
+
+    # We believe that our failure during this incident was our response.
+    - PAs-About-Whole-Lifecycle: Failures (and therefore PAs) can cover the whole incident life-cycle

@@ -1,0 +1,98 @@
+#
+# 24.yaml | AWS
+#
+# A network disruption led to DynamoDB storage servers asking metadata servers for updated "membership" information. Because membership information was larger now than previously for many tables (due to GSIs) many of these requests timed out. The metadata service was overwhelmed and storage servers marked themselves as unavailable.
+# 
+# https://aws.amazon.com/message/5467D2/
+
+24:
+
+  # When the network disruption occurred on Sunday morning, and a number of storage servers simultaneously requested their membership data, the metadata service was processing some membership lists that were now large enough that their processing time was near the time limit for retrieval [leading to timeouts and retries] First, we have already significantly increased the capacity of the metadata service.
+
+  24-1:
+    event: Concurrent requests after network disruption led to overload 
+    Event: Concurrent requests overloaded storage subsystem
+
+    action: Significantly increase capacity
+    Action: Scale up (capacity)
+
+    target: Metadata subsystem
+    Target: Tech / Component / Distributed storage subsystem
+
+    goal: Prevent overload (GUESS)
+    Goal: Prevent overload
+    
+  # Second, we are instrumenting stricter monitoring on performance dimensions, such as the membership size, to allow us to thoroughly understand their state and proactively plan for the right capacity.
+    
+  24-2:
+    event: Concurrent requests after network disruption led to overload
+    Event: Concurrent requests overloaded storage subsystem
+    
+    action: Add monitoring on more performance dimensions (response sizes)
+    Action: Add / Monitoring / Performance based monitoring (visibility into distributed storage subsystem performance)
+    
+    target: Monitoring systems
+    Target: Tech / Component / Monitoring systems
+    
+    goal: Support proactive capacity planning
+    Goal: Support capacity planning
+    
+    memos:
+    # Normally, this type of networking disruption is handled seamlessly and without change to the performance of DynamoDB, as affected storage servers query the metadata service for their membership, process any updates, and reconfirm their availability to accept requests [but membership sizes had increased and] We did not have detailed enough monitoring for this dimension (membership size), and didn’t have enough capacity allocated to the metadata service to handle these much heavier requests.
+    
+    - Incident demonstrated a (untracked) performance dimension (learning!)
+    - Gradual change (membership sizes) made it no longer resilient to disruption
+    
+  # Third, we are reducing the rate at which storage nodes request membership data and lengthening the time allowed to process queries.
+
+  24-3:
+    event: Concurrent requests after network disruption led to overload
+    Event: Concurrent requests overloaded storage subsystem
+    
+    action: Reduce frequency and increase timeout value for requests
+    Action: Reduce call frequency and increase timeout values
+    
+    target: Distributed storage nodes (clients of metadata service)
+    Target: Tech / Component / Distributed storage nodes
+    
+    goal: Reduce resources required for synchronization (GUESS)
+    Goal: Reduce resource utilization (adding headroom)
+
+    memos:
+      - Uncertainty: (24-3, 24-4) Headroom goal
+
+  # Finally and longer term, we are segmenting the DynamoDB service so that it will have many instances of the metadata service each serving only portions of the storage server fleet. This will further contain the impact of software, performance/capacity, or infrastructure failures.
+
+  24-4:
+    event: Concurrent requests after network disruption led to overload
+    Event: Concurrent requests overloaded storage subsystem
+    
+    action: Partition service, splitting load
+    Action: Partition service (split load)
+    
+    target: Distributed storage system architecture
+    Target: Tech / Architecture / Distributed storage system and clients
+
+    goal: Reduce resource utilization (adding headroom) and isolate failures
+    Goal: Split load (adding headroom for safety) and isolate failures
+
+    memos:
+      - Uncertainty: (24-3, 24-4) Headroom goal
+
+    
+  memos:
+    
+    # Initially, we were unable to add capacity to the metadata service because it was under such high load, preventing us from successfully making the requisite administrative requests.
+    
+    - Too much load to scale it up (ha!)
+
+    - Shared Events
+
+  patterns:
+    
+    - Supply and demand full-press
+    
+      - Scale up
+      - Monitor utilization
+      - Reduce demand
+      - Split up demand

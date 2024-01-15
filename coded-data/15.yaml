@@ -1,0 +1,39 @@
+#
+# 15.yaml | Zalando
+#
+# Continuous delivery platform builds were failing for almost an hour since pods couldn't get AWS IAM credentials. A low request rate limit on a configuring process and the rapid creation and deletion of pods caused the configuring process to fall behind.
+# 
+# https://github.com/zalando-incubator/kubernetes-on-aws/blob/dev/docs/postmortems/jun-2019-kubelet-qps.md
+# 
+# Linked PA's PR: https://github.com/zalando-incubator/kubernetes-on-aws/pull/2247
+
+15:
+
+  # CDP builds were timing out and failing because Kubernetes builder Pods couldn’t get AWS IAM credentials [because too many nodes started up for the very load qps setting on the kubernetes API server] To stop the bleeding, the cluster was manually scaled up so builder Pods would be spread over more than 1 node. For a permanent fix, the Kubelet QPS was increased from 5 (default) to 50 via a global cluster configuration.
+
+  15-1:
+    # TODO: Discuss if we want to code this property
+    condition: Default QPS limit is low (matters when starting 20 nodes)
+    
+    event: Delay in updating new node status and so failing to get credentials
+    Event: Scale up caused failure (slow to be add nodes during scale up)
+
+    action: Increase request rate limit via global cluster configuration
+    Action: Fix configuration / Increase request rate limit
+
+    target: Cluster configuration (kubernetes API server ?)
+    Target: Tech / Component / Cluster configuration / External system (open source)
+
+    goal: Prevent delays in getting credentials (for newly started nodes)
+    Goal: Prevent failure scenario / Reduce node start time
+    
+    memos:
+    # Lack of details in report, but PA links to a pull request
+    - Externally linked PA details
+
+    - First-Fast-Then-Right: (Right) Permanent fix after a "to stop the bleeding" fix
+
+    
+  pattern:
+
+    Shallow: Only fix the direct root cause/condition nothing else (shallow analysis)

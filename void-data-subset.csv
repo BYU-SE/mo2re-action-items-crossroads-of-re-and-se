@@ -1,0 +1,26 @@
+ID,Primary source,voidId,Title,Date of incident,Date of writeup,Impact category,Name (from Organization)
+1,https://blog.chef.io/2019/09/19/chefs-position-on-customer-engagement-in-the-public-and-private-sectors/,recvF5Vn3rPXqNuvV,Chefâ€™s Position on Customer Engagement in the Public and Private Sectors,9/19/2019,9/19/2019,Partial production outage,Chef
+2,https://www.reddit.com/r/RedditEng/comments/o4y4dq/rwallstreetbets_incident_anthology_reddits_open/,recp3FjVqIAYE8lPV,r/WallStreetBets Incident Anthology: Redditâ€™s Open Systems,1/27/2021,6/21/2021,"Increased errors,Degraded service/performance,Cascading failure",Reddit
+3,https://mailchimp.com/what-we-learned-from-the-recent-mandrill-outage/,recXsagT1RysS7PW9,What We Learned from the Recent Mandrill Outage,2/4/2019,3/26/2019,Partial production outage,Mandrill
+4,https://blog.asana.com/2016/09/yesterdays-outage/,recNzUxH7wUL4Acl8,Yesterdayâ€™s outage,9/8/2016,9/9/2016,Full production outage,Asana
+5,https://medium.com/autofarm-network/21-april-2021-venus-vaults-post-mortem-1518ae7399c6,recpEFgdSmB7BF3lf,21 April 2021 â€” Venus Vaults Post-Mortem,4/21/2021,4/21/2021,Degraded service/performance,Autofarm
+6,https://flowdock-resources.s3.amazonaws.com/legal/Flowdock-RCA-For-Incident-On-2020-04-21.pdf,recu6VznsEX7l1qGz,CA Flowdock â€“ Outage 22nd & 23rd April 2020,4/22/2020,5/5/2020,Full production outage,Flowdock
+7,https://www.elastic.co/blog/elastic-cloud-incident-report-feburary-4-2019,recssIcL009pR9wrr,"Elastic Cloud Incident Report: February 4, 2019",2/4/2019,3/5/2019,"Partial production outage,Degraded service/performance",Elastic
+8,https://github.com/zalando-incubator/kubernetes-on-aws/blob/dev/docs/postmortems/jan-2019-dns-outage.md,recKvx9L072it5ik5,Total DNS outage in Kubernetes cluster,1/7/2019,2/15/2019,"Increased errors,Partial production outage",Zalando
+9,https://blog.roblox.com/2021/10/update-recent-service-outage/,reczRWc9bGnXwTrnO,An Update on Our Outage,10/28/2021,10/31/2021,Full production outage,Roblox
+10,https://www.honeycomb.io/blog/postmortem-rds-clogs-cache-refresh-crash-loops/,recPrmHW3jRMb5Qoq,Postmortem: RDS Clogs & Cache-Refresh Crash Loops,10/14/2018,10/25/2018,Partial production outage,Honeycomb
+11,https://community.spotify.com/t5/Ongoing-Issues/Downtime-November-16th-Spotify-website-and-app-down/idi-p/5296183,reczgZiUvSFCEippp,Spotify website and app down,11/16/2021,11/16/2021,Full production outage,Spotify
+12,https://medium.com/making-instapaper/instapaper-outage-cause-recovery-3c32a7e9cc5f,recppeZu8qODDcTyt,Instapaper Outage Cause & Recovery,2/9/2017,2/14/2017,Full production outage,Instapaper
+13,https://www.honeycomb.io/blog/incident-review-you-cant-deploy-binaries-that-dont-exist/,rec8PD4DvEvb3RXtI,Incident Review: You Canâ€™t Deploy Binaries That Donâ€™t Exist,7/9/2019,7/12/2019,Increased latency,Honeycomb
+14,https://blog.github.com/2018-10-21-october21-incident-report/,reccbEziOmjnsTBdd,October 21 Incident Report,10/21/2018,10/21/2018,Degraded service/performance,GitHub
+15,https://github.com/zalando-incubator/kubernetes-on-aws/blob/dev/docs/postmortems/jun-2019-kubelet-qps.md,recBqaEKItF45cxmB,Build Errors of Continuous Delivery Platform,6/29/2019,6/29/2019,"Non-production outage,Degraded service/performance",Zalando
+16,https://www.kaseya.com/potential-attack-on-kaseya-vsa/,recRDYaEAHuOkOiPI,Information Regarding Potential Attack on Kaseya VSA,7/2/2021,7/2/2021,"Partial production outage,Security",Kaseya
+17,https://community.secondlife.com/blogs/entry/2438-unscheduled-ddos-on-10-28-2018/,rec9EmpuGHQH1dHuh,Unscheduled DDoS on 10-28-2018,10/28/2018,10/31/2018,Full production outage,Second Life
+18,https://slack.engineering/slacks-outage-on-january-4th-2021/,recJeeUeppDEuiypA,Slackâ€™s Outage on January 4th 2021,1/4/2021,2/1/2021,Full production outage,Slack
+19,https://blog.cloudflare.com/cloudflare-dashboard-and-api-outage-on-april-15-2020/,recVrKnPoaa2XiFZk,"Cloudflare Dashboard and API Outage on April 15, 2020",4/15/2020,4/16/2020,Partial production outage,Cloudflare
+20,https://monzo.com/blog/2019/09/08/why-monzo-wasnt-working-on-july-29th,rec6ZG3w8M2yiA3Yb,"We had issues with Monzo on 29th July. Here's what happened, and what we did to fix it.",7/29/2019,8/9/2019,Full production outage,Monzo
+21,https://www.bungie.net/en/News/Article/48723,recnsNU1K2mm4L6UN,Destiny 2 outage and rollback,2/11/2020,2/12/2020,Full production outage,Bungie
+22,https://help.salesforce.com/articleView?id=000358392&type=1&mode=1,rec2Vy8zihRs5xdmF,"Multi-Instance Service Disruption on May 11-12, 2021",5/11/2021,5/17/2021,Full production outage,Salesforce
+23,https://about.rogers.com/news-ideas/a-message-from-jorge-fernandes-chief-technology-officer-at-rogers/,rec955UDDEYh8r6cE,"An updated message from Jorge Fernandes, Chief Technology Officer at Rogers",4/19/2021,4/19/2021,Partial production outage,Rogers
+24,https://aws.amazon.com/message/5467D2/,recxxykjblrSBfX63,Summary of the Amazon DynamoDB Service Disruption and Related Impacts in the US-East Region,9/20/2015,,Partial production outage,AWS
+25,https://aws.amazon.com/message/11201/,recTMtnO3HrWdb62N,Summary of the Amazon Kinesis Event in the Northern Virginia (US-EAST-1) Region,11/25/2020,11/25/2020,"Degraded service/performance,Increased errors,Increased latency",AWS

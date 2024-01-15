@@ -1,0 +1,75 @@
+#
+# 12.yaml | Instapaper (Pinterest)
+#
+# A critical RDS hosted MySQL database failed because a table exceeded the RDS instances 2TB file size limit (ext3 filesystem limit)
+# 
+# https://medium.com/making-instapaper/instapaper-outage-cause-recovery-3c32a7e9cc5f
+
+12: 
+
+  #
+  # Lessons learned from the "Reflections" section? Not sure.
+  #
+
+  #
+  # "Action items" section
+  #
+
+  # After a long phone call with AWS support and discussing the limitation with Pinterest’s Site Reliability engineers, we understood [...] Pinterest SRE team guided us through [...] As part of our retrospective process at Pinterest, we’re defining a better workflow for system-wide Instapaper outages that escalate issues immediately to Pinterest’s Site Reliability Engineering team.
+
+  12-1: 
+    event: There was not a good disaster recovery plan in the event of database failure and backups unusable
+    Event: No good recovery plan and involving appropriate responders was delayed
+
+    action: Change to direct (immediate) escalation
+    Action: Change escalation (make immediate)
+
+    target: Workflow for system-wide outages
+    Target: Process / Incident response / Workflow
+
+    goal: Engage experts more quickly (SREs)
+    Goal: Engage experts more quickly during response
+    
+  # [Resolution involved multi-day database dump and rebuild because] MySQL instance failed with a critical filesystem issue that all of our backups were also subject to [...] Additionally, we’re going to be more aggressive with testing our MySQL backups. We used to test backups every three months, and now we’ll test every month.
+
+  12-2:    
+    event: Database backups failed with the database (leading to slow recovery)
+    Event: Database backup failure and slow recovery
+    
+    action: Increase frequency of tests (from quarterly to monthly)
+    Action: Increase testing frequency
+    
+    target: Backup database tests
+    Target: Process / Testing activities and practices / Backup database testing
+    
+    goal: Reliable backups for quicker recovery
+    Goal: Reliable database backups
+    
+    memos:
+    - Could this be seen as a circular dependency connecting backup and prod
+
+    
+  memos:
+    
+    # Once the service was back up and the data dumps completed, the next step was to import all of the dumps into an instance that wasn’t subject to the 2TB file size limit. 
+    
+    - Key-PAs: Key PA are often done as part of the mitigation/resolution of the incident
+    
+    # Without knowledge of the pre-April 2014 file size limit, it was difficult to foresee and prevent this issue. As far as we can tell, there’s no information in the RDS console in the form of monitoring, alerts or logging that would have let us know we were approaching the 2TB file size limit, or that we were subject to it in the first place.
+    
+    - Uncertainty: Unforeseeable, Unexpected, unexpectable, unpredicted, invisible and without warning
+    - Improving-Understanding: Unforseeable rhymes with this pattern
+
+    # While the information about the 2TB limitation wasn’t directly available to me, it’s my responsibility to understand the limitations of the technologies I’m using in my day-to-day operations, even if those technologies are hosted by another company.
+    
+    - Accountability: Accountability and the need to be proactive in identifying limits
+    
+    # We’ll continue to use Amazon’s Relational Database Service for now. While it’s frustrating to experience an issue without warning or visibility, RDS has been a reliable
+    
+    - PA-Negative: Another example of mentioning a PA that the team will NOT do
+
+    
+    # Neither of the above action items would have prevented this issue, but they’ll help accelerate our response times in the event of an outage and are good practices.
+    - PA-Mitigation-Acceleration: PAs accelerate response times rather than prevent issue
+    
+    
